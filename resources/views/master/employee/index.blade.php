@@ -12,35 +12,6 @@
             </button>
         </div>
 
-        @php
-        $employees = [
-        [
-        'employee_name' => 'Budi Santoso',
-        'department' => 'Warehouse',
-        'position' => 'Staff',
-        'role' => 'input_shipment',
-        'username' => 'budi.s',
-        'allowed_branches' => 'Jakarta, Bogor'
-        ],
-        [
-        'employee_name' => 'Siti Aminah',
-        'department' => 'HRD',
-        'position' => 'Supervisor',
-        'role' => 'superadmin',
-        'username' => 'siti.a',
-        'allowed_branches' => 'all'
-        ],
-        [
-        'employee_name' => 'Rizky Hadi',
-        'department' => 'Operasional',
-        'position' => 'Admin',
-        'role' => 'input_all',
-        'username' => 'rizky.h',
-        'allowed_branches' => 'Jakarta'
-        ],
-        ];
-        @endphp
-
         {{-- Table --}}
         <div class="overflow-x-auto">
             <table class="min-w-full">
@@ -58,12 +29,22 @@
                 <tbody>
                     @forelse ($employees as $emp)
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3 text-sm">{{ $emp['employee_name'] }}</td>
-                        <td class="p-3 text-sm">{{ $emp['department'] }}</td>
-                        <td class="p-3 text-sm">{{ $emp['position'] }}</td>
-                        <td class="p-3 text-sm text-center">{{ $emp['role'] }}</td>
-                        <td class="p-3 text-sm">{{ $emp['username'] }}</td>
-                        <td class="p-3 text-sm text-center">{{ $emp['allowed_branches'] }}</td>
+                        <td class="p-3 text-sm">{{ $emp->name }}</td>
+                        <td class="p-3 text-sm">{{ $emp->department->department->department }}</td>
+                        <td class="p-3 text-sm">{{ $emp->title }}</td>
+                        <td class="p-3 text-sm text-center">
+                            @foreach ($user->roles as $role)
+                            <span class="px-2 py-1 rounded-full text-xs font-medium">
+                                {{ $role->name }}
+                            </span>
+                            @endforeach
+                        </td>
+                        <td class="p-3 text-sm">{{ $emp->username }}</td>
+                        <td class="p-3 text-sm text-center">
+                            @foreach($emp->plants as $emp_plant)
+                            {{$emp_plant->plant->plant}}
+                            @endforeach
+                        </td>
                         <td class="p-3 text-center">
                             <button class="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">
                                 🗑️ Hapus
@@ -141,17 +122,17 @@
 </div>
 
 <script>
-function openModal() {
-    const modal = document.getElementById('addModal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
+    function openModal() {
+        const modal = document.getElementById('addModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 
-function closeModal() {
-    const modal = document.getElementById('addModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-}
+    function closeModal() {
+        const modal = document.getElementById('addModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 </script>
 
 @endsection

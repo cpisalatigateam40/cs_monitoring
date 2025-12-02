@@ -2,17 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expedition;
 use Illuminate\Http\Request;
 
 class ExpeditionController extends Controller
 {
     public function index()
     {
-        $expeditions = [
-            ['name' => 'JNE'],
-            ['name' => 'J&T Express'],
-            ['name' => 'SiCepat'],
-        ];
+        $expeditions = Expedition::all();
 
         return view('master.expedition.index', compact('expeditions'));
     }

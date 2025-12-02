@@ -24,7 +24,7 @@
                 <tbody>
                     @forelse ($expeditions as $expedition)
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3 text-sm">{{ $expedition['name'] }}</td>
+                        <td class="p-3 text-sm">{{ $expedition->expedition }}</td>
                         <td class="p-3 text-center">
                             <button class="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">
                                 🗑️ Hapus
@@ -65,13 +65,13 @@
 </div>
 
 <script>
-function openModal() {
-    document.getElementById('addModal').classList.remove('hidden');
-}
+    function openModal() {
+        document.getElementById('addModal').classList.remove('hidden');
+    }
 
-function closeModal() {
-    document.getElementById('addModal').classList.add('hidden');
-}
+    function closeModal() {
+        document.getElementById('addModal').classList.add('hidden');
+    }
 </script>
 
 @endsection

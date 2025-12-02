@@ -11,6 +11,6 @@ class WarehouseController extends Controller
     {
         $warehouses = Warehouse::with('plant')->get();
 
-        return view('master.warehouse.index', compact('warehouses', 'branches'));
+        return view('master.warehouse.index', compact('warehouses'));
     }
 }

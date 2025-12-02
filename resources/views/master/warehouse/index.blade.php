@@ -64,7 +64,7 @@
                 <select class="w-full border rounded-lg p-2" required>
                     <option value="">Pilih Cabang</option>
                     @foreach ($branches as $branch)
-                    <option value="{{ $branch }}">{{ $branch }}</option>
+                    <option value="{{ $branch->uuid }}">{{ $branch->plant }}</option>
                     @endforeach
                 </select>
             </div>

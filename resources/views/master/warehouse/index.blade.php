@@ -1,0 +1,90 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="max-w-7xl mx-auto px-6 py-6">
+
+    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-gray-800">📦 Database Gudang</h2>
+            <button onclick="openModal()"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">
+                ➕ Tambah Data
+            </button>
+        </div>
+
+        {{-- Table --}}
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-blue-600 text-white sticky top-0">
+                    <tr>
+                        <th class="p-3 text-left text-sm font-semibold">Nama Gudang</th>
+                        <th class="p-3 text-left text-sm font-semibold">Cabang</th>
+                        <th class="p-3 text-center text-sm font-semibold">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($warehouses as $warehouse)
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 text-sm">{{ $warehouse['name'] }}</td>
+                        <td class="p-3 text-sm">{{ $warehouse['branch'] }}</td>
+                        <td class="p-3 text-center">
+                            <button class="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">
+                                🗑️ Hapus
+                            </button>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="text-center p-4 text-gray-500">Belum ada data</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+{{-- Modal --}}
+<div id="addModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center">
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Tambah Gudang</h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-red-600">✕</button>
+        </div>
+
+        <form>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Nama Gudang</label>
+                <input type="text" class="w-full border rounded-lg p-2" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Cabang</label>
+                <select class="w-full border rounded-lg p-2" required>
+                    <option value="">Pilih Cabang</option>
+                    @foreach ($branches as $branch)
+                    <option value="{{ $branch }}">{{ $branch }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
+                Simpan
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+function openModal() {
+    document.getElementById('addModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('addModal').classList.add('hidden');
+}
+</script>
+
+@endsection

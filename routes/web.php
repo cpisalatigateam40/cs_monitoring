@@ -24,6 +24,10 @@ Route::middleware('auth')->group(function () {
         ->name('shipment.recap');
     Route::post('/input/warehouse/store', [InputController::class, 'warehouseStore'])->name('warehouse-temperature.store');
     Route::post('/input/delivery/store', [InputController::class, 'deliveryStore'])->name('deliveries.store');
+    Route::get('/temperature/template/warehouse', [InputController::class, 'templateWarehouse'])->name('temperature.template.warehouse');
+    Route::get('/temperature/template/delivery', [InputController::class, 'templateDelivery'])->name('temperature.template.delivery');
+    Route::post('/temperature/import/warehouse', [InputController::class, 'importWarehouse'])->name('import.warehouse');
+    Route::post('/temperature/import/delivery', [InputController::class, 'importDelivery'])->name('temperature.import.delivery');
 
     Route::resource('warehouses', WarehouseController::class);
     Route::resource('expeditions', ExpeditionController::class);

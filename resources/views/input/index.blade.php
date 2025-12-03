@@ -1,6 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
+@if (session('success'))
+<div class="mb-6 p-4 rounded-lg bg-green-100 border border-green-300 text-green-800">
+    <strong>✔ Berhasil:</strong> {{ session('success') }}
+</div>
+@endif
+
+@if (session('error'))
+<div class="mb-6 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800">
+    <strong>✘ Gagal:</strong> {{ session('error') }}
+</div>
+@endif
+
+@if ($errors->any())
+<div class="mb-6 p-4 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800">
+    <strong>⚠ Terjadi kesalahan:</strong>
+    <ul class="mt-2 list-disc pl-5">
+        @foreach ($errors->all() as $err)
+        <li>{{ $err }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
 <div class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-6">
 
     {{-- Form Gudang --}}
@@ -34,6 +56,10 @@
                 Simpan Data Gudang
             </button>
         </form>
+        <button onclick="openModal('warehouseModal')"
+            class="px-4 py-2 bg-green-600 text-white rounded shadow mt-3">
+            📥 Import Excel
+        </button>
     </div>
 
     {{-- Form Ekspedisi --}}
@@ -100,7 +126,91 @@
                 Simpan Data Pengiriman
             </button>
         </form>
+        <button onclick="openModal('deliveryModal')"
+            class="px-4 py-2 bg-green-600 text-white rounded shadow mt-3">
+            📥 Import Excel
+        </button>
     </div>
 
+</div>
+<script>
+    function openModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+</script>
+
+{{-- =============== WAREHOUSE MODAL =============== --}}
+<div id="warehouseModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+
+    <div class="bg-white rounded-lg w-96 p-6 shadow-xl">
+        <h2 class="text-lg font-bold mb-4">📥 Import Excel - Warehouse</h2>
+
+        <form action="{{ route('import.warehouse') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            <label class="block mb-2 font-semibold">Upload File:</label>
+            <input type="file" name="excel_file"
+                accept=".xlsx,.xls"
+                class="border p-2 w-full rounded mb-4">
+
+            <div class="flex justify-between">
+                <a href="{{ route('temperature.template.warehouse') }}"
+                    class="px-3 py-2 bg-blue-600 text-white rounded">
+                    📄 Download Template
+                </a>
+
+                <button type="submit"
+                    class="px-3 py-2 bg-green-600 text-white rounded">
+                    Import
+                </button>
+            </div>
+        </form>
+
+        <button onclick="closeModal('warehouseModal')"
+            class="mt-4 w-full py-2 bg-gray-300 rounded">
+            Close
+        </button>
+    </div>
+</div>
+
+
+{{-- =============== DELIVERY MODAL =============== --}}
+<div id="deliveryModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+
+    <div class="bg-white rounded-lg w-96 p-6 shadow-xl">
+        <h2 class="text-lg font-bold mb-4">📥 Import Excel - Delivery</h2>
+
+        <form action="{{ route('temperature.import.delivery') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            <label class="block mb-2 font-semibold">Upload File:</label>
+            <input type="file" name="excel_file"
+                accept=".xlsx,.xls"
+                class="border p-2 w-full rounded mb-4">
+
+            <div class="flex justify-between">
+                <a href="{{ route('temperature.template.delivery') }}"
+                    class="px-3 py-2 bg-blue-600 text-white rounded">
+                    📄 Download Template
+                </a>
+
+                <button type="submit"
+                    class="px-3 py-2 bg-green-600 text-white rounded">
+                    Import
+                </button>
+            </div>
+        </form>
+
+        <button onclick="closeModal('deliveryModal')"
+            class="mt-4 w-full py-2 bg-gray-300 rounded">
+            Close
+        </button>
+    </div>
 </div>
 @endsection

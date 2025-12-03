@@ -20,7 +20,7 @@
         <div class="flex gap-2 items-center flex-wrap">
 
             {{-- Menu Buttons --}}
-            <a href="{{ route('dashboard') }}"
+            <a href="{{ route('dashboard.page') }}"
                 class="px-4 py-2 text-sm font-semibold border rounded-md hover:bg-blue-50">
                 🏠 Dashboard
             </a>
@@ -68,7 +68,6 @@
             <button class="px-4 py-2 text-sm font-semibold bg-red-500 hover:bg-red-600 text-white rounded-md">
                 🚪 Logout
             </button>
-
         </div>
     </div>
 </nav>

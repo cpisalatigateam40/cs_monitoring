@@ -68,37 +68,61 @@ $fontSize = 14; // default sementara
         <div style="display: flex; flex-direction: column; gap: {{ $fontSize }}px;">
 
             @php
-            $stats = [
-            ['label' => 'Suhu < -18°C', 'count'=> 4, 'percent' => 60, 'bg' => '#d1fae5', 'text' => '#065f46' ],
-                ['label' => '-18°C s/d -15°C', 'count' => 2, 'percent' => 20, 'bg' => '#fed7aa', 'text' => '#92400e' ],
-                ['label' => '-15°C s/d -10°C', 'count' => 1, 'percent' => 10, 'bg' => '#fecaca', 'text' => '#991b1b' ],
-                ['label' => '-10°C s/d 0°C', 'count' => 1, 'percent' => 10, 'bg' => '#fecaca', 'text' => '#991b1b' ],
-                ['label' => 'Suhu > 0°C', 'count' => 0, 'percent' => 0, 'bg' => '#fecaca', 'text' => '#991b1b' ],
-                ];
-                @endphp
+            $groups = [
+            'Suhu < -18°C'=> fn($t) => $t < -18, '-18°C s/d -15°C'=> fn($t) => $t >= -18 && $t < -15, '-15°C s/d -10°C'=> fn($t) => $t >= -15 && $t < -10, '-10°C s/d 0°C'=> fn($t) => $t >= -10 && $t < 0, 'Suhu > 0°C'=> fn($t) => $t >= 0,
+                                ];
 
-                @foreach($stats as $s)
-                <div
-                    style="background: {{ $s['bg'] }}; padding: {{ $fontSize * 1.5 }}px; border-radius: 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                    <div style="display: flex; justify-content: space-between;">
-                        <div>
-                            <p
-                                style="font-size: {{ $fontSize * 0.875 }}px; font-weight: 600; margin-bottom: {{ $fontSize * 0.5 }}px; color: {{ $s['text'] }};">
-                                {{ $s['label'] }}
-                            </p>
-                            <p
-                                style="font-size: {{ $fontSize * 2.5 }}px; font-weight: 800; line-height: 1; color: {{ $s['text'] }};">
-                                {{ $s['count'] }}
-                            </p>
-                        </div>
-                        <div style="text-align: right;">
-                            <p style="font-size: {{ $fontSize * 2 }}px; font-weight: 700; color: {{ $s['text'] }};">
-                                {{ $s['percent'] }}%
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
+                                $total = $records->count();
+
+                                $stats = [];
+
+                                foreach ($groups as $label => $condition) {
+                                $count = $records->filter(fn($r) => $condition($r->temperature))->count();
+
+                                $stats[] = [
+                                'label' => $label,
+                                'count' => $count,
+                                'percent' => $total > 0 ? round(($count / $total) * 100) : 0,
+                                'bg' => match($label) {
+                                'Suhu < -18°C'=> '#d1fae5',
+                                    '-18°C s/d -15°C' => '#fed7aa',
+                                    '-15°C s/d -10°C' => '#fecaca',
+                                    '-10°C s/d 0°C' => '#fecaca',
+                                    'Suhu > 0°C' => '#fecaca',
+                                    },
+                                    'text' => match($label) {
+                                    'Suhu < -18°C'=> '#065f46',
+                                        '-18°C s/d -15°C' => '#92400e',
+                                        default => '#991b1b',
+                                        }
+                                        ];
+                                        }
+                                        @endphp
+
+
+                                        @foreach($stats as $s)
+                                        <div
+                                            style="background: {{ $s['bg'] }}; padding: {{ $fontSize * 1.5 }}px; border-radius: 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <div>
+                                                    <p
+                                                        style="font-size: {{ $fontSize * 0.875 }}px; font-weight: 600; margin-bottom: {{ $fontSize * 0.5 }}px; color: {{ $s['text'] }};">
+                                                        {{ $s['label'] }}
+                                                    </p>
+                                                    <p
+                                                        style="font-size: {{ $fontSize * 2.5 }}px; font-weight: 800; line-height: 1; color: {{ $s['text'] }};">
+                                                        {{ $s['count'] }}
+                                                    </p>
+                                                </div>
+                                                <div style="text-align: right;">
+                                                    <p style="font-size: {{ $fontSize * 2 }}px; font-weight: 700; color: {{ $s['text'] }};">
+                                                        {{ $s['percent'] }}%
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endforeach
+
         </div>
 
 
@@ -121,7 +145,7 @@ $fontSize = 14; // default sementara
                     <tbody>
                         @foreach($records as $r)
                         @php
-                        $temp = $r['temperature'];
+                        $temp = $r->temperature;
                         if ($temp < -18) { $color=['bg'=>'#d1fae5','text'=>'#065f46','label'=>'Aman']; }
                             else if ($temp < -10) { $color=['bg'=>'#fed7aa','text'=>'#92400e','label'=>'Warning']; }
                                 else { $color = ['bg'=>'#fecaca','text'=>'#991b1b','label'=>'Bahaya']; }
@@ -129,16 +153,20 @@ $fontSize = 14; // default sementara
                                 <tr style="background-color: {{ $color['bg'] }};">
                                     <td
                                         style="padding: {{ $fontSize }}px; font-weight: 500; color: {{ $color['text'] }};">
-                                        {{ $r['timestamp']->format('d M Y H:i') }}</td>
+                                        {{ $r->time }}
+                                    </td>
                                     <td
                                         style="padding: {{ $fontSize }}px; font-weight: 500; color: {{ $color['text'] }};">
-                                        {{ $r['warehouse_name'] }}</td>
+                                        {{ $r->warehouse->warehouse }}
+                                    </td>
                                     <td
                                         style="padding: {{ $fontSize }}px; font-weight: 700; color: {{ $color['text'] }};">
-                                        {{ number_format($temp,1) }}°C</td>
+                                        {{ number_format($temp,1) }}°C
+                                    </td>
                                     <td
                                         style="padding: {{ $fontSize }}px; font-weight: 600; color: {{ $color['text'] }};">
-                                        {{ $color['label'] }}</td>
+                                        {{ $color['label'] }}
+                                    </td>
                                 </tr>
                                 @endforeach
 

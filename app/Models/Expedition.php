@@ -16,4 +16,9 @@ class Expedition extends Model
         'uuid',
         'expedition'
     ];
+
+    public function deliveries()
+    {
+        return $this->hasMany(Delivery::class, 'expedition_uuid', 'uuid');
+    }
 }

@@ -51,18 +51,27 @@
             <button onclick="closeModal()" class="text-gray-500 hover:text-red-600">✕</button>
         </div>
 
-        <form>
+        <form action="{{ route('expeditions.store') }}" method="POST">
+            @csrf
+
+            {{-- NAMA EKSPEDISI --}}
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Nama Ekspedisi</label>
-                <input type="text" class="w-full border rounded-lg p-2" required>
+                <input type="text" name="expedition" class="w-full border rounded-lg p-2" required>
+
+                @error('expedition')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
                 Simpan
             </button>
         </form>
     </div>
 </div>
+
 
 <script>
     function openModal() {

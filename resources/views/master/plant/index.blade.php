@@ -51,18 +51,36 @@
             <button onclick="closeModal()" class="text-gray-500 hover:text-red-600">✕</button>
         </div>
 
-        <form>
+        <form action="{{ route('plants.store') }}" method="POST">
+            @csrf
+
+            {{-- NAMA CABANG --}}
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Nama Cabang</label>
-                <input type="text" class="w-full border rounded-lg p-2" required>
+                <input type="text" name="plant" class="w-full border rounded-lg p-2" required>
+                @error('plant')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
+            {{-- ABBREVIATION --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Abbrivation</label>
+                <input type="text" name="abbrivation" class="w-full border rounded-lg p-2" placeholder="Contoh: SLTG" required>
+                @error('abbrivation')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
                 Simpan
             </button>
         </form>
+
     </div>
 </div>
+
 
 <script>
     function openModal() {

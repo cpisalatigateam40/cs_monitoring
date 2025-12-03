@@ -2,31 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Warehouse;
+use App\Models\WarehouseTemperature;
 use Illuminate\Http\Request;
 
 class WarehouseRecapController extends Controller
 {
     public function index()
     {
-        $warehouses = ['Gudang A', 'Gudang B', 'Gudang C'];
+        $warehouses = Warehouse::with('plant')->get();
 
-        $records = [
-            [
-                'timestamp' => now()->subHours(1),
-                'warehouse_name' => 'Gudang A',
-                'temperature' => -20.5
-            ],
-            [
-                'timestamp' => now()->subHours(3),
-                'warehouse_name' => 'Gudang B',
-                'temperature' => -14.2
-            ],
-            [
-                'timestamp' => now()->subHours(5),
-                'warehouse_name' => 'Gudang C',
-                'temperature' => -9.8
-            ],
-        ];
+        $records = WarehouseTemperature::with('warehouse')->get();
 
         return view('warehouse.index', compact('warehouses', 'records'));
     }

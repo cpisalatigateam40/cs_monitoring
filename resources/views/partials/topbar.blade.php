@@ -48,16 +48,16 @@
                 </button>
 
                 <div id="dropdownMenu" class="absolute hidden bg-white border rounded-md shadow-lg mt-1 w-44">
-                    <a href="{{ route('master.warehouse') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
+                    <a href="{{ route('warehouses.index') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
                         📦 Database Gudang
                     </a>
-                    <a href="{{ route('master.expedition') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
+                    <a href="{{ route('expeditions.index') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
                         🚚 Database Ekspedisi
                     </a>
-                    <a href="{{ route('master.employee') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
+                    <a href="{{ route('employees.index') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
                         👤 Database Karyawan
                     </a>
-                    <a href="{{ route('master.plant') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
+                    <a href="{{ route('plants.index') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
                         🏢 Database Cabang
                     </a>
                 </div>
@@ -73,18 +73,18 @@
 </nav>
 
 <script>
-function toggleDropdown() {
-    const menu = document.getElementById('dropdownMenu');
-    menu.classList.toggle('hidden');
-}
-
-// Klik luar → dropdown menutup
-window.addEventListener('click', function(e) {
-    const button = document.querySelector('[onclick="toggleDropdown()"]');
-    const menu = document.getElementById('dropdownMenu');
-
-    if (!button.contains(e.target) && !menu.contains(e.target)) {
-        menu.classList.add('hidden');
+    function toggleDropdown() {
+        const menu = document.getElementById('dropdownMenu');
+        menu.classList.toggle('hidden');
     }
-});
+
+    // Klik luar → dropdown menutup
+    window.addEventListener('click', function(e) {
+        const button = document.querySelector('[onclick="toggleDropdown()"]');
+        const menu = document.getElementById('dropdownMenu');
+
+        if (!button.contains(e.target) && !menu.contains(e.target)) {
+            menu.classList.add('hidden');
+        }
+    });
 </script>

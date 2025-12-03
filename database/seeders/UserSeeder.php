@@ -18,6 +18,8 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        $department = DepartmentPlant::first();
+
         $user1 = User::create([
             'uuid' => Str::uuid(),
             'username' => 'superadmin',
@@ -25,6 +27,7 @@ class UserSeeder extends Seeder
             'email' => 'superadmin@cp.co.id',
             'email_verified_at' => now(),
             'password' => bcrypt('cpi12345'),
+            'department_uuid' => $department->uuid,
             'status' => 1
         ]);
 
@@ -35,6 +38,7 @@ class UserSeeder extends Seeder
             'email' => 'yosi.pratama@cp.co.id',
             'email_verified_at' => now(),
             'password' => bcrypt('cpi12345'),
+            'department_uuid' => $department->uuid,
             'status' => 1
         ]);
 

@@ -33,7 +33,7 @@
                         <td class="p-3 text-sm">{{ $emp->department->department->department }}</td>
                         <td class="p-3 text-sm">{{ $emp->title }}</td>
                         <td class="p-3 text-sm text-center">
-                            @foreach ($user->roles as $role)
+                            @foreach ($emp->roles as $role)
                             <span class="px-2 py-1 rounded-full text-xs font-medium">
                                 {{ $role->name }}
                             </span>
@@ -42,7 +42,9 @@
                         <td class="p-3 text-sm">{{ $emp->username }}</td>
                         <td class="p-3 text-sm text-center">
                             @foreach($emp->plants as $emp_plant)
-                            {{$emp_plant->plant->plant}}
+                            <ul>
+                                <li>{{$emp_plant->plant->plant}}</li>
+                            </ul>
                             @endforeach
                         </td>
                         <td class="p-3 text-center">
@@ -71,53 +73,85 @@
             <button onclick="closeModal()" class="text-gray-500 hover:text-red-600">✕</button>
         </div>
 
-        <form>
+        <form action="{{ route('employees.store') }}" method="POST">
+            @csrf
+
+            {{-- NAMA --}}
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Nama Karyawan</label>
-                <input type="text" class="w-full border rounded-lg p-2" required>
+                <input type="text" name="name" class="w-full border rounded-lg p-2" required>
             </div>
 
+            {{-- DEPARTEMEN --}}
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Departemen</label>
-                <input type="text" class="w-full border rounded-lg p-2" required>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Jabatan</label>
-                <input type="text" class="w-full border rounded-lg p-2" required>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Role</label>
-                <select class="w-full border rounded-lg p-2" required>
-                    <option value="">Pilih Role</option>
-                    <option value="superadmin">superadmin</option>
-                    <option value="input_shipment">input_shipment</option>
-                    <option value="input_all">input_all</option>
+                <select name="department_uuid" class="w-full border rounded-lg p-2" required>
+                    <option value="">Pilih Departemen</option>
+                    @foreach ($departments as $dept)
+                    <option value="{{ $dept->uuid }}">{{ $dept->department }}</option>
+                    @endforeach
                 </select>
             </div>
 
+            {{-- JABATAN --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Jabatan</label>
+                <input type="text" name="jabatan" class="w-full border rounded-lg p-2" required>
+            </div>
+
+            {{-- ROLE --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Role</label>
+                <select name="role" class="w-full border rounded-lg p-2" required>
+                    <option value="">Pilih Role</option>
+                    @foreach ($roles as $role)
+                    <option value="{{ $role->name }}">{{ $role->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- USERNAME --}}
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Username</label>
-                <input type="text" class="w-full border rounded-lg p-2" required>
+                <input type="text" name="username" class="w-full border rounded-lg p-2" required>
             </div>
 
+            {{-- PASSWORD --}}
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" class="w-full border rounded-lg p-2" required>
+                <input type="password" name="password" class="w-full border rounded-lg p-2" required>
             </div>
 
+            {{-- AKSES CABANG --}}
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Akses Cabang</label>
-                <input type="text" class="w-full border rounded-lg p-2" placeholder="Pisahkan dengan koma, atau 'all'"
-                    required>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Akses Cabang</label>
+
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach ($plants as $plant)
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox"
+                            name="plant_uuid[]"
+                            value="{{ $plant->uuid }}"
+                            class="rounded">
+                        <span>{{ $plant->plant }}</span>
+                    </label>
+                    @endforeach
+                </div>
+
+                {{-- Select ALL --}}
+                <div class="mt-2">
+                    <label class="flex items-center gap-2 text-blue-600 cursor-pointer">
+                        <input type="checkbox" id="checkAllPlants" class="rounded">
+                        <span>Pilih Semua Cabang</span>
+                    </label>
+                </div>
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
                 Simpan
             </button>
         </form>
-
     </div>
 </div>
 
@@ -133,6 +167,11 @@
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
+
+    document.getElementById("checkAllPlants").addEventListener("change", function() {
+        const checkboxes = document.querySelectorAll('input[name="plant_uuid[]"]');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
 </script>
 
 @endsection

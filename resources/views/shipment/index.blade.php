@@ -38,84 +38,110 @@
     </div>
 
     {{-- Stat & Table Section --}}
-    <div class="grid md:grid-cols-3 gap-6">
+    @php
+    $groups = [
+    'Suhu < -18°C'=> fn($t) => $t < -18, '-18°C s/d -15°C'=> fn($t) => $t >= -18 && $t < -15, '-15°C s/d -10°C'=> fn($t) => $t >= -15 && $t < -10, '-10°C s/d 0°C'=> fn($t) => $t >= -10 && $t < 0, 'Suhu > 0°C'=> fn($t) => $t >= 0,
+                        ];
 
-        {{-- Stat Cards --}}
-        <div class="space-y-4">
+                        $total = $records->count();
 
-            <div class="p-4 bg-emerald-200 rounded-lg border-2 border-transparent cursor-pointer">
-                <p class="text-emerald-900 font-semibold text-sm">Suhu &lt; -18°C</p>
-                <h3 class="text-3xl font-extrabold text-emerald-900">12</h3>
-                <p class="text-emerald-700 font-bold text-xl">40%</p>
-            </div>
+                        $stats = [];
 
-            <div class="p-4 bg-orange-200 rounded-lg border-2 border-transparent cursor-pointer">
-                <p class="text-orange-900 font-semibold text-sm">-18°C s/d -15°C</p>
-                <h3 class="text-3xl font-extrabold text-orange-900">8</h3>
-                <p class="text-orange-700 font-bold text-xl">27%</p>
-            </div>
+                        foreach ($groups as $label => $condition) {
+                        $count = $records->filter(fn($r) => $condition($r->temperature))->count();
 
-            <div class="p-4 bg-red-200 rounded-lg border-2 border-transparent cursor-pointer">
-                <p class="text-red-900 font-semibold text-sm">-15°C s/d -10°C</p>
-                <h3 class="text-3xl font-extrabold text-red-900">6</h3>
-                <p class="text-red-700 font-bold text-xl">20%</p>
-            </div>
+                        $stats[] = [
+                        'label' => $label,
+                        'count' => $count,
+                        'percent' => $total > 0 ? round(($count / $total) * 100) : 0,
+                        'bg' => match($label) {
+                        'Suhu < -18°C'=> 'bg-emerald-200 text-emerald-900',
+                            '-18°C s/d -15°C' => 'bg-orange-200 text-orange-900',
+                            default => 'bg-red-200 text-red-900',
+                            }
+                            ];
+                            }
+                            @endphp
 
-            <div class="p-4 bg-red-200 rounded-lg border-2 border-transparent cursor-pointer">
-                <p class="text-red-900 font-semibold text-sm">-10°C s/d 0°C</p>
-                <h3 class="text-3xl font-extrabold text-red-900">3</h3>
-                <p class="text-red-700 font-bold text-xl">10%</p>
-            </div>
 
-            <div class="p-4 bg-red-200 rounded-lg border-2 border-transparent cursor-pointer">
-                <p class="text-red-900 font-semibold text-sm">Suhu &gt; 0°C</p>
-                <h3 class="text-3xl font-extrabold text-red-900">1</h3>
-                <p class="text-red-700 font-bold text-xl">3%</p>
-            </div>
+                            <div class="grid md:grid-cols-3 gap-6">
 
-        </div>
+                                {{-- Stat Cards --}}
+                                <div class="space-y-4">
+                                    @foreach ($stats as $s)
+                                    @php
+                                    // background color (first class)
+                                    $bg = explode(' ', $s['bg'])[0];
+                                    $text = explode(' ', $s['bg'])[1];
+                                    @endphp
 
-        {{-- Table --}}
-        <div class="md:col-span-2 bg-white rounded-lg shadow overflow-hidden">
-            <div class="border-b p-4">
-                <h2 class="text-lg font-semibold text-gray-900">📋 Riwayat Pembacaan</h2>
-            </div>
+                                    <div class="p-4 rounded-lg border-2 border-transparent cursor-pointer {{ $bg }}">
+                                        <p class="font-semibold text-sm {{ $text }}">{{ $s['label'] }}</p>
+                                        <h3 class="text-3xl font-extrabold {{ $text }}">{{ $s['count'] }}</h3>
+                                        <p class="font-bold text-xl {{ $text }}">{{ $s['percent'] }}%</p>
+                                    </div>
+                                    @endforeach
+                                </div>
 
-            <div class="overflow-y-auto" style="max-height: 500px;">
-                <table class="min-w-full">
-                    <thead class="bg-blue-600 text-white sticky top-0">
-                        <tr>
-                            <th class="p-3 text-left text-sm font-semibold">Waktu</th>
-                            <th class="p-3 text-left text-sm font-semibold">Ekspedisi</th>
-                            <th class="p-3 text-left text-sm font-semibold">Suhu</th>
-                            <th class="p-3 text-left text-sm font-semibold">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="bg-emerald-100">
-                            <td class="p-3 text-sm">01 Des 2025 - 09:20</td>
-                            <td class="p-3 text-sm">Expedisi A - B1234CD</td>
-                            <td class="p-3 font-bold text-sm">-18.5°C</td>
-                            <td class="p-3 font-semibold text-sm">Aman</td>
-                        </tr>
-                        <tr class="bg-orange-100">
-                            <td class="p-3 text-sm">01 Des 2025 - 08:10</td>
-                            <td class="p-3 text-sm">Expedisi B - D5678EF</td>
-                            <td class="p-3 font-bold text-sm">-16.3°C</td>
-                            <td class="p-3 font-semibold text-sm">Warning</td>
-                        </tr>
-                        <tr class="bg-red-100">
-                            <td class="p-3 text-sm">30 Nov 2025 - 14:50</td>
-                            <td class="p-3 text-sm">Expedisi C - F5123GH</td>
-                            <td class="p-3 font-bold text-sm">-12.1°C</td>
-                            <td class="p-3 font-semibold text-sm">Bahaya</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-    </div>
+                                {{-- Table --}}
+                                <div class="md:col-span-2 bg-white rounded-lg shadow overflow-hidden">
+                                    <div class="border-b p-4">
+                                        <h2 class="text-lg font-semibold text-gray-900">📋 Riwayat Pembacaan</h2>
+                                    </div>
 
+                                    <div class="overflow-y-auto" style="max-height: 500px;">
+                                        <table class="min-w-full">
+                                            <thead class="bg-blue-600 text-white sticky top-0">
+                                                <tr>
+                                                    <th class="p-3 text-left text-sm font-semibold">Waktu</th>
+                                                    <th class="p-3 text-left text-sm font-semibold">Ekspedisi</th>
+                                                    <th class="p-3 text-left text-sm font-semibold">Suhu</th>
+                                                    <th class="p-3 text-left text-sm font-semibold">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                                @foreach ($records as $r)
+                                                @php
+                                                $temp = $r->temperature;
+
+                                                if ($temp < -18) {
+                                                    $row=['bg'=> 'bg-emerald-100', 'text' => 'text-emerald-900', 'label' => 'Aman'];
+                                                    } elseif ($temp < -10) {
+                                                        $row=['bg'=> 'bg-orange-100', 'text' => 'text-orange-900', 'label' => 'Warning'];
+                                                        } else {
+                                                        $row = ['bg' => 'bg-red-100', 'text' => 'text-red-900', 'label' => 'Bahaya'];
+                                                        }
+                                                        @endphp
+
+                                                        <tr class="{{ $row['bg'] }}">
+                                                            <td class="p-3 text-sm {{ $row['text'] }}">{{ $r->time }}</td>
+                                                            <td class="p-3 text-sm {{ $row['text'] }}">
+                                                                {{ $r->expedition->expedition ?? '-' }} - {{$r->license_plate}}
+                                                            </td>
+                                                            <td class="p-3 text-sm font-bold {{ $row['text'] }}">
+                                                                {{ number_format($temp, 1) }}°C
+                                                            </td>
+                                                            <td class="p-3 text-sm font-semibold {{ $row['text'] }}">
+                                                                {{ $row['label'] }}
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+
+                                                        @if ($records->isEmpty())
+                                                        <tr>
+                                                            <td colspan="4" class="p-6 text-center text-gray-500">
+                                                                Tidak ada data
+                                                            </td>
+                                                        </tr>
+                                                        @endif
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
 </div>
 @endsection

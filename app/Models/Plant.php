@@ -29,4 +29,16 @@ class Plant extends Model
     {
         return $this->hasMany(UserPlant::class, 'plant_uuid', 'uuid');
     }
+
+    public function realDepartments()
+    {
+        return $this->hasManyThrough(
+            Department::class,
+            DepartmentPlant::class,
+            'plant_uuid',        // FK on department_plants
+            'uuid',              // FK on departments
+            'uuid',              // Local on plants
+            'department_uuid'    // Local on department_plants
+        )->where('department_plants.visible', true);
+    }
 }

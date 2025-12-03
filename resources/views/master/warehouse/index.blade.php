@@ -48,34 +48,47 @@
 {{-- Modal --}}
 <div id="addModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center">
     <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md mx-4">
+
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-bold">Tambah Gudang</h3>
             <button onclick="closeModal()" class="text-gray-500 hover:text-red-600">✕</button>
         </div>
 
-        <form>
+        <form action="{{ route('warehouses.store') }}" method="POST">
+            @csrf
+
+            {{-- NAMA GUDANG --}}
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Nama Gudang</label>
-                <input type="text" class="w-full border rounded-lg p-2" required>
+                <input type="text" name="warehouse" class="w-full border rounded-lg p-2" required>
+
+                @error('warehouse')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
+            {{-- CABANG --}}
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Cabang</label>
-                <select class="w-full border rounded-lg p-2" required>
+                <select name="plant_uuid" class="w-full border rounded-lg p-2" required>
                     <option value="">Pilih Cabang</option>
                     @foreach ($branches as $branch)
                     <option value="{{ $branch->uuid }}">{{ $branch->plant }}</option>
                     @endforeach
                 </select>
+
+                @error('plant_uuid')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
                 Simpan
             </button>
         </form>
     </div>
 </div>
-
 
 <script>
     function openModal() {

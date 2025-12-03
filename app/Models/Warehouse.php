@@ -22,4 +22,9 @@ class Warehouse extends Model
     {
         return $this->belongsTo(Plant::class, 'plant_uuid', 'uuid');
     }
+
+    public function temps()
+    {
+        return $this->hasMany(WarehouseTemperature::class, 'warehouse_uuid', 'uuid');
+    }
 }

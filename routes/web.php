@@ -16,22 +16,17 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
-
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.page');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.page');
     Route::get('/input', [InputController::class, 'index'])->name('input.index');
     Route::get('/rekap-gudang', [WarehouseRecapController::class, 'index'])->name('warehouse.recap');
     Route::get('/rekap-pengiriman', [ShipmentRecapController::class, 'index'])
         ->name('shipment.recap');
-    Route::get('/master/warehouse', [WarehouseController::class, 'index'])
-        ->name('master.warehouse');
-    Route::get('/master/expedition', [ExpeditionController::class, 'index'])
-        ->name('master.expedition');
-    Route::get('/master/employee', [EmployeeController::class, 'index'])
-        ->name('master.employee');
-    Route::get('/master/plant', [PlantController::class, 'index'])
-        ->name('master.plant');
+    Route::post('/input/warehouse/store', [InputController::class, 'warehouseStore'])->name('warehouse-temperature.store');
+    Route::post('/input/delivery/store', [InputController::class, 'deliveryStore'])->name('deliveries.store');
+
+    Route::resource('warehouses', WarehouseController::class);
+    Route::resource('expeditions', ExpeditionController::class);
+    Route::resource('employees', EmployeeController::class);
+    Route::resource('plants', PlantController::class);
 });

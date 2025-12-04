@@ -32,4 +32,25 @@ class WarehouseController extends Controller
 
         return redirect()->back()->with('success', 'Gudang berhasil ditambahkan.');
     }
+
+    public function update(Request $request, $uuid)
+    {
+        $validated = $request->validate([
+            'warehouse' => 'required|string|max:255|unique:warehouses,warehouse,' . $uuid . ',uuid',
+            'plant_uuid' => 'required|exists:plants,uuid',
+        ]);
+
+        $warehouse = Warehouse::where('uuid', $uuid)->firstOrFail();
+        $warehouse->update($validated);
+
+        return redirect()->back()->with('success', 'Gudang berhasil diperbarui.');
+    }
+
+    public function destroy($uuid)
+    {
+        $warehouse = Warehouse::where('uuid', $uuid)->firstOrFail();
+        $warehouse->delete();
+
+        return redirect()->back()->with('success', 'Gudang berhasil dihapus.');
+    }
 }

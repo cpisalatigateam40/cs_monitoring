@@ -13,40 +13,43 @@ $fontSize = 14; // default sementara
         <h2 style="font-size: {{ $fontSize * 1.25 }}px; font-weight: 600; margin-bottom: {{ $fontSize }}px;">
             🔍 Filter Data
         </h2>
-
-        <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: {{ $fontSize }}px;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: {{ $fontSize }}px; align-items: end;">
             <div>
-                <label
-                    style="display: block; font-size: {{ $fontSize * 0.875 }}px; font-weight: 500; margin-bottom: {{ $fontSize * 0.5 }}px;">
+                <label style="display: block; font-size: {{ $fontSize * 0.875 }}px; font-weight: 500; margin-bottom: {{ $fontSize * 0.5 }}px;">
                     Gudang
                 </label>
-                <select
-                    style="width: 100%; padding: {{ $fontSize * 0.75 }}px {{ $fontSize }}px; border-radius: 8px; border: 2px solid #e5e7eb;">
-                    <option>Semua Gudang</option>
+                <select name="warehouse" form="filterForm" style="width: 100%; padding: {{ $fontSize * 0.75 }}px {{ $fontSize }}px; border-radius: 8px; border: 2px solid #e5e7eb;" onchange="document.getElementById('filterForm').submit()">
+                    <option value="all" {{ request('warehouse') == 'all' ? 'selected' : '' }}>Semua Gudang</option>
                     @foreach($warehouses as $w)
-                    <option>{{ $w }}</option>
+                    <option value="{{ $w->uuid }}" {{ request('warehouse') == $w->uuid ? 'selected' : '' }}>
+                        {{ $w->warehouse }}
+                    </option>
                     @endforeach
                 </select>
             </div>
 
             <div>
-                <label
-                    style="display: block; font-size: {{ $fontSize * 0.875 }}px; font-weight: 500; margin-bottom: {{ $fontSize * 0.5 }}px;">
+                <label style="display: block; font-size: {{ $fontSize * 0.875 }}px; font-weight: 500; margin-bottom: {{ $fontSize * 0.5 }}px;">
                     Tanggal Mulai
                 </label>
-                <input type="date"
-                    style="width: 100%; padding: {{ $fontSize * 0.75 }}px {{ $fontSize }}px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                <input type="date" name="start_date" form="filterForm" value="{{ request('start_date') }}" style="width: 100%; padding: {{ $fontSize * 0.75 }}px {{ $fontSize }}px; border-radius: 8px; border: 2px solid #e5e7eb;" onchange="document.getElementById('filterForm').submit()">
             </div>
 
             <div>
-                <label
-                    style="display: block; font-size: {{ $fontSize * 0.875 }}px; font-weight: 500; margin-bottom: {{ $fontSize * 0.5 }}px;">
+                <label style="display: block; font-size: {{ $fontSize * 0.875 }}px; font-weight: 500; margin-bottom: {{ $fontSize * 0.5 }}px;">
                     Tanggal Selesai
                 </label>
-                <input type="date"
-                    style="width: 100%; padding: {{ $fontSize * 0.75 }}px {{ $fontSize }}px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                <input type="date" name="end_date" form="filterForm" value="{{ request('end_date') }}" style="width: 100%; padding: {{ $fontSize * 0.75 }}px {{ $fontSize }}px; border-radius: 8px; border: 2px solid #e5e7eb;" onchange="document.getElementById('filterForm').submit()">
             </div>
+
+            <div>
+                <button type="button" onclick="window.location='{{ route('warehouse.recap') }}'" style="width: 100%; padding: {{ $fontSize * 0.75 }}px; border-radius: 8px; border: 1px solid #ccc; background: #f0f0f0; font-weight: 500;">
+                    Reset
+                </button>
+            </div>
+
+            <!-- Hidden form -->
+            <form id="filterForm" action="{{ route('warehouse.recap') }}" method="GET" style="display: none;"></form>
         </div>
     </div>
 

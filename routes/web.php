@@ -10,7 +10,7 @@ use App\Http\Controllers\ExpeditionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\DepartmentController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -33,4 +33,5 @@ Route::middleware('auth')->group(function () {
     Route::resource('expeditions', ExpeditionController::class);
     Route::resource('employees', EmployeeController::class);
     Route::resource('plants', PlantController::class);
+    Route::resource('departments', DepartmentController::class);
 });

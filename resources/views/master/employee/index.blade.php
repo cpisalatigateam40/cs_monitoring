@@ -30,7 +30,7 @@
                     @forelse ($employees as $emp)
                     <tr class="border-b hover:bg-gray-50">
                         <td class="p-3 text-sm">{{ $emp->name }}</td>
-                        <td class="p-3 text-sm">{{ $emp->department->department->department }}</td>
+                        <td class="p-3 text-sm">{{ $emp->department->department }}</td>
                         <td class="p-3 text-sm">{{ $emp->title }}</td>
                         <td class="p-3 text-sm text-center">
                             @foreach ($emp->roles as $role)
@@ -48,10 +48,32 @@
                             @endforeach
                         </td>
                         <td class="p-3 text-center">
-                            <button class="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">
-                                🗑️ Hapus
+                            <!-- Edit -->
+                            <button
+                                class="px-3 py-1 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600"
+                                onclick='openEditModal(
+                                @json($emp->uuid),
+                                @json($emp->name),
+                                @json($emp->department_uuid),
+                                @json($emp->title),
+                                @json($emp->username),
+                                @json($emp->plants->pluck("plant_uuid"))
+                                )'>
+                                ✏️ Edit
                             </button>
+
+                            <!-- Delete -->
+                            <form action="{{ route('employees.destroy', $emp->uuid) }}" method="POST" class="inline"
+                                onsubmit="return confirm('Hapus karyawan ini?')">
+                                @csrf
+                                @method('DELETE')
+
+                                <button class="px-3 py-1 bg-red-600 text-white rounded-md text-xs hover:bg-red-700">
+                                    🗑️ Hapus
+                                </button>
+                            </form>
                         </td>
+
                     </tr>
                     @empty
                     <tr>
@@ -155,6 +177,69 @@
     </div>
 </div>
 
+<div id="editModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-[999]">
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Edit Karyawan</h3>
+            <button onclick="closeEditModal()" class="text-gray-500 hover:text-red-600">✕</button>
+        </div>
+
+        <form id="editForm" method="POST">
+            @csrf
+            @method('PUT')
+
+            {{-- NAMA --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium">Nama Karyawan</label>
+                <input type="text" id="edit_name" name="name" class="w-full border rounded-lg p-2" required>
+            </div>
+
+            {{-- DEPARTEMEN --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium">Departemen</label>
+                <select id="edit_department" name="department_uuid" class="w-full border rounded-lg p-2" required>
+                    <option value="">Pilih Departemen</option>
+                    @foreach ($departments as $dept)
+                    <option value="{{ $dept->uuid }}">{{ $dept->department }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- JABATAN --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium">Jabatan</label>
+                <input type="text" id="edit_title" name="jabatan" class="w-full border rounded-lg p-2" required>
+            </div>
+
+            {{-- USERNAME --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium">Username</label>
+                <input type="text" id="edit_username" name="username" class="w-full border rounded-lg p-2" required>
+            </div>
+
+            {{-- AKSES CABANG --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium">Akses Cabang</label>
+
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach ($plants as $plant)
+                    <label>
+                        <input type="checkbox"
+                            class="edit_plant rounded"
+                            name="plant_uuid[]"
+                            value="{{ $plant->uuid }}">
+                        {{ $plant->plant }}
+                    </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <button class="w-full bg-blue-600 text-white py-2 rounded-lg">Update</button>
+
+        </form>
+    </div>
+</div>
+
 <script>
     function openModal() {
         const modal = document.getElementById('addModal');
@@ -172,6 +257,32 @@
         const checkboxes = document.querySelectorAll('input[name="plant_uuid[]"]');
         checkboxes.forEach(cb => cb.checked = this.checked);
     });
+
+    function openEditModal(uuid, name, dept_uuid, title, username, plants) {
+        document.getElementById("edit_name").value = name;
+        document.getElementById("edit_department").value = dept_uuid;
+        document.getElementById("edit_title").value = title;
+        document.getElementById("edit_username").value = username;
+
+        // Set action URL
+        document.getElementById("editForm").action = "/employees/" + uuid;
+
+        // Reset all checkboxes
+        document.querySelectorAll('.edit_plant').forEach(cb => cb.checked = false);
+
+        // Auto-select assigned plants
+        plants.forEach(uuid => {
+            let checkbox = document.querySelector(`.edit_plant[value="${uuid}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+
+        document.getElementById("editModal").classList.remove("hidden");
+        document.getElementById("editModal").classList.add("flex");
+    }
+
+    function closeEditModal() {
+        document.getElementById("editModal").classList.add("hidden");
+    }
 </script>
 
 @endsection

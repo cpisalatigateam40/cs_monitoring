@@ -36,19 +36,15 @@ class EmployeeController extends Controller
             'plant_uuid'       => 'required|array',
             'plant_uuid.*'     => 'exists:plants,uuid',
         ]);
-
-        $department = DepartmentPlant::where('department_uuid', $request->department_uuid)
-            ->where('plant_uuid', Auth::user()->department->plant_uuid)
-            ->first();
+        // dd($request);
         $email = $validated['username'] . '@gmail.com';
 
-        // CREATE USER
         $user = User::create([
             'name'            => $validated['name'],
             'username'        => $validated['username'],
             'email'           => $email,
             'password'        => Hash::make($validated['password']),
-            'department_uuid' => $department->uuid,
+            'department_uuid' => $validated['department_uuid'],
             'title'           => $validated['jabatan'],
             'status'          => 1,
         ]);
@@ -65,5 +61,49 @@ class EmployeeController extends Controller
         }
 
         return redirect()->back()->with('success', 'Karyawan berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, $uuid)
+    {
+        // VALIDATION
+        $validated = $request->validate([
+            'name'             => 'required|string|max:255',
+            'username'         => 'required|string|max:255|unique:users,username,' . $uuid . ',uuid',
+            'department_uuid'  => 'required|exists:departments,uuid',
+            'jabatan'          => 'required|string|max:255',
+            'plant_uuid'       => 'required|array',
+            'plant_uuid.*'     => 'exists:plants,uuid',
+        ]);
+
+        // FIND USER
+        $user = User::where('uuid', $uuid)->firstOrFail();
+
+        // UPDATE MAIN USER DATA
+        $user->update([
+            'name'            => $validated['name'],
+            'username'        => $validated['username'],
+            'department_uuid' => $validated['department_uuid'],
+            'title'           => $validated['jabatan'],
+        ]);
+
+        // UPDATE PLANTS (DELETE OLD → INSERT NEW)
+        UserPlant::where('user_uuid', $user->uuid)->delete();
+
+        foreach ($validated['plant_uuid'] as $plantUuid) {
+            UserPlant::create([
+                'user_uuid'  => $user->uuid,
+                'plant_uuid' => $plantUuid,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Data karyawan berhasil diupdate.');
+    }
+
+    public function destroy($uuid)
+    {
+        $department = User::where('uuid', $uuid)->firstOrFail();
+        $department->delete(); // soft delete
+
+        return redirect()->back()->with('success', 'Departemen berhasil dihapus.');
     }
 }

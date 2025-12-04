@@ -26,4 +26,24 @@ class ExpeditionController extends Controller
 
         return redirect()->back()->with('success', 'Ekspedisi berhasil ditambahkan.');
     }
+
+    public function update(Request $request, $uuid)
+    {
+        $validated = $request->validate([
+            'expedition' => 'required|string|max:255|unique:expeditions,expedition,' . $uuid . ',uuid',
+        ]);
+
+        $expedition = Expedition::where('uuid', $uuid)->firstOrFail();
+        $expedition->update($validated);
+
+        return redirect()->back()->with('success', 'Ekspedisi berhasil diperbarui.');
+    }
+
+    public function destroy($uuid)
+    {
+        $expedition = Expedition::where('uuid', $uuid)->firstOrFail();
+        $expedition->delete();
+
+        return redirect()->back()->with('success', 'Ekspedisi berhasil dihapus.');
+    }
 }

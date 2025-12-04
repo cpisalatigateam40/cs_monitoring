@@ -28,7 +28,8 @@ class User extends Authenticatable
         'email',
         'password',
         'department_uuid',
-        'status'
+        'status',
+        'title'
     ];
 
     /**
@@ -56,7 +57,7 @@ class User extends Authenticatable
 
     public function department()
     {
-        return $this->belongsTo(DepartmentPlant::class, 'department_uuid', 'uuid');
+        return $this->belongsTo(Department::class, 'department_uuid', 'uuid');
     }
 
     public function plants()

@@ -19,8 +19,8 @@ class Department extends Model
         'abbrivation'
     ];
 
-    public function departments()
+    public function users()
     {
-        return $this->hasMany(DepartmentPlant::class, 'department_uuid', 'uuid');
+        return $this->hasMany(User::class, 'department_uuid', 'uuid');
     }
 }

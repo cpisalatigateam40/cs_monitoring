@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Department;
 use App\Models\DepartmentPlant;
 use App\Models\Plant;
 use App\Models\User;
@@ -18,7 +19,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $department = DepartmentPlant::first();
+        $department = Department::first();
 
         $user1 = User::create([
             'uuid' => Str::uuid(),

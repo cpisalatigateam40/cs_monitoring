@@ -28,4 +28,25 @@ class PlantController extends Controller
 
         return redirect()->back()->with('success', 'Cabang berhasil ditambahkan.');
     }
+
+    public function update(Request $request, $uuid)
+    {
+        $validated = $request->validate([
+            'plant' => 'required|string|max:255|unique:plants,plant,' . $uuid . ',uuid',
+            'abbrivation' => 'required|string|max:10|unique:plants,abbrivation,' . $uuid . ',uuid',
+        ]);
+
+        $plant = Plant::where('uuid', $uuid)->firstOrFail();
+        $plant->update($validated);
+
+        return redirect()->back()->with('success', 'Cabang berhasil diperbarui.');
+    }
+
+    public function destroy($uuid)
+    {
+        $plant = Plant::where('uuid', $uuid)->firstOrFail();
+        $plant->delete();
+
+        return redirect()->back()->with('success', 'Cabang berhasil dihapus.');
+    }
 }

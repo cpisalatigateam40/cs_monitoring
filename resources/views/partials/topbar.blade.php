@@ -7,13 +7,13 @@
                 Pemantauan Suhu Gudang Berpendingin
             </h1>
 
-            <select
+            <!-- <select
                 class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
                 <option value="A">Cabang A</option>
-                <option value="B">Cabang B</option>
+                <option value="sB">Cabang B</option>
                 <option value="C">Cabang C</option>
                 <option value="all">Semua Cabang</option>
-            </select>
+            </select> -->
         </div>
 
         {{-- RIGHT: Navigation --}}
@@ -59,6 +59,9 @@
                     </a>
                     <a href="{{ route('plants.index') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
                         🏢 Database Cabang
+                    </a>
+                    <a href="{{ route('departments.index') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
+                        🏢 Database Departemen
                     </a>
                 </div>
             </div>

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->uuid('department_uuid')->after('password');
 
-            $table->foreign('department_uuid')->on('department_plants')->references('uuid');
+            $table->foreign('department_uuid')->on('departments')->references('uuid');
         });
     }
 

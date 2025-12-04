@@ -7,26 +7,39 @@
     <div class="bg-white shadow-md rounded-lg p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">🔍 Filter Data</h2>
 
-        <div class="grid md:grid-cols-3 gap-4">
+        <form id="filterForm" action="{{ route('shipment.recap') }}" method="GET" class="grid md:grid-cols-4 gap-4 items-end">
+            <!-- Pengiriman Dropdown -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Pengiriman</label>
-                <select class="w-full border rounded-lg p-2">
-                    <option>Semua Pengiriman</option>
-                    <option>Expedisi A - B1234CD</option>
-                    <option>Expedisi B - D5678EF</option>
+                <select name="expedition" class="w-full border rounded-lg p-2" onchange="this.form.submit()">
+                    <option value="all" {{ request('expedition') == 'all' ? 'selected' : '' }}>Semua Pengiriman</option>
+                    @foreach($expeditions as $exp)
+                    <option value="{{ $exp->uuid }}" {{ request('expedition') == $exp->uuid ? 'selected' : '' }}>
+                        {{ $exp->expedition }} - {{ $exp->code }}
+                    </option>
+                    @endforeach
                 </select>
             </div>
 
+            <!-- Tanggal Mulai -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
-                <input type="date" class="w-full border rounded-lg p-2" value="{{ now()->subDays(7)->toDateString() }}">
+                <input type="date" name="start_date" class="w-full border rounded-lg p-2" onchange="this.form.submit()">
             </div>
 
+            <!-- Tanggal Selesai -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
-                <input type="date" class="w-full border rounded-lg p-2" value="{{ now()->toDateString() }}">
+                <input type="date" name="end_date" class="w-full border rounded-lg p-2" onchange="this.form.submit()">
             </div>
-        </div>
+
+            <!-- Reset Button -->
+            <div>
+                <button type="button" onclick="window.location='{{ route('shipment.recap') }}'" class="w-full bg-gray-100 border rounded-lg p-2 font-medium hover:bg-gray-200">
+                    Reset
+                </button>
+            </div>
+        </form>
     </div>
 
     {{-- Chart Section --}}

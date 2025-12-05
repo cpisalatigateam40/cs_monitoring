@@ -29,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/temperature/import/warehouse', [InputController::class, 'importWarehouse'])->name('import.warehouse');
     Route::post('/temperature/import/delivery', [InputController::class, 'importDelivery'])->name('temperature.import.delivery');
 
+    Route::post('/set-plant', [PlantController::class, 'setPlant'])->name('setPlant');
+
     Route::resource('warehouses', WarehouseController::class);
     Route::resource('expeditions', ExpeditionController::class);
     Route::resource('employees', EmployeeController::class);

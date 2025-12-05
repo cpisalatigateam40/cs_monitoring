@@ -151,12 +151,51 @@ class InputController extends Controller
     public function importDelivery(Request $request)
     {
         $request->validate([
-            'excel_file' => 'required|file|mimetypes:application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'excel_file'     => 'required|file|max:20480',
+            'expedition_uuid' => 'required|string|exists:expeditions,uuid',
+            'license_plate'   => 'required|string',
+            'destination'     => 'required|string',
+            'start_time'      => 'required|date',
+            'end_time'        => 'required|date',
         ]);
 
+        $file = $request->file('excel_file');
+
+        $allowed = ['xls', 'xlsx', 'xlsm', 'ods', 'csv'];
+
+        if (! in_array(strtolower($file->getClientOriginalExtension()), $allowed)) {
+            return back()->with('error', 'Format file tidak didukung.');
+        }
+
+        // Detect thermologger .xls disguised as .xlsx
+        $firstBytes = file_get_contents($file->getRealPath(), false, null, 0, 4);
+
+        if ($firstBytes === "PK\x03\x04") {
+            $tmpPath = $file->getRealPath();
+            $convertedPath = $tmpPath . '.xlsx';
+            copy($tmpPath, $convertedPath);
+            $pathToImport = $convertedPath;
+        } else {
+            $pathToImport = $file->getRealPath();
+        }
+
         try {
-            Excel::import(new DeliveryImport, $request->file('excel_file'));
-            return back()->with('success', 'Delivery data imported successfully.');
+            // 1️⃣ SIMPAN DELIVERY DULU
+            $delivery = Delivery::create([
+                'expedition_uuid' => $request->expedition_uuid,
+                'license_plate'   => $request->license_plate,
+                'destination'     => $request->destination,
+                'start_time'      => $request->start_time,
+                'end_time'        => $request->end_time,
+            ]);
+
+            // 2️⃣ LALU IMPORT TEMPERATURE
+            Excel::import(
+                new DeliveryImport($delivery->uuid),
+                $pathToImport
+            );
+
+            return back()->with('success', 'Delivery imported successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Import failed: ' . $e->getMessage());
         }

@@ -274,6 +274,40 @@
         <form action="{{ route('temperature.import.delivery') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
+            <div>
+                <label class="block mb-2 font-semibold">Nama Ekspedisi</label>
+                <select name="expedition_uuid" class="w-full border rounded-md p-2" required>
+                    <option value="">Pilih Ekspedisi</option>
+                    @foreach ($expeditions as $e)
+                    <option value="{{ $e->uuid }}">{{ $e->expedition }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- License Plate --}}
+            <div>
+                <label class="block mb-2 font-semibold">Nomor Plat Kendaraan</label>
+                <input type="text" name="license_plate" class="w-full border rounded-md p-2" required>
+            </div>
+
+            {{-- Destination --}}
+            <div>
+                <label class="block mb-2 font-semibold">Tujuan Pengiriman</label>
+                <input type="text" name="destination" class="w-full border rounded-md p-2" required>
+            </div>
+
+            {{-- Start Time --}}
+            <div>
+                <label class="block mb-2 font-semibold">Waktu Berangkat</label>
+                <input type="datetime-local" name="start_time" class="w-full border rounded-md p-2" required>
+            </div>
+
+            {{-- End Time --}}
+            <div>
+                <label class="block mb-2 font-semibold">Waktu Kedatangan</label>
+                <input type="datetime-local" name="end_time" class="w-full border rounded-md p-2" required>
+            </div>
+
             <label class="block mb-2 font-semibold">Upload File:</label>
             <input type="file" name="excel_file"
                 accept=".xlsx,.xls"

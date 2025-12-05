@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\FilterByPlant;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Warehouse extends Model
 {
-    use HasFactory, HasUuid;
+    use HasFactory, HasUuid, FilterByPlant;
 
     protected $table = "warehouses";
     protected $primaryKey = "id";

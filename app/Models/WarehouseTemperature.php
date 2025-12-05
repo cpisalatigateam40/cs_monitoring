@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\FilterByPlant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class WarehouseTemperature extends Model
 {
-    use HasFactory;
+    use HasFactory, FilterByPlant;
 
     protected $table = "warehouse_temperatures";
     protected $primaryKey = "id";

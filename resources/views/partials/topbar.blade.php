@@ -7,13 +7,16 @@
                 Pemantauan Suhu Gudang Berpendingin
             </h1>
 
-            <!-- <select
+            <select
+                id="plantSelect"
                 class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
-                <option value="A">Cabang A</option>
-                <option value="sB">Cabang B</option>
-                <option value="C">Cabang C</option>
-                <option value="all">Semua Cabang</option>
-            </select> -->
+                @foreach($plants as $plant)
+                <option value="{{ $plant->id }}" {{ session('selected_plant') == $plant->id ? 'selected' : '' }}>
+                    Cabang {{ $plant->name }}
+                </option>
+                @endforeach
+                <option value="all" {{ session('selected_plant') == 'all' ? 'selected' : '' }}>Semua Cabang</option>
+            </select>
         </div>
 
         {{-- RIGHT: Navigation --}}

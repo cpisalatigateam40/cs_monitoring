@@ -30,7 +30,7 @@
                     @forelse ($employees as $emp)
                     <tr class="border-b hover:bg-gray-50">
                         <td class="p-3 text-sm">{{ $emp->name }}</td>
-                        <td class="p-3 text-sm">{{ $emp->department->department }}</td>
+                        <td class="p-3 text-sm">{{ $emp->department->department ?? '-' }}</td>
                         <td class="p-3 text-sm">{{ $emp->title }}</td>
                         <td class="p-3 text-sm text-center">
                             @foreach ($emp->roles as $role)
@@ -149,7 +149,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Akses Cabang</label>
 
                 <div class="grid grid-cols-2 gap-2">
-                    @foreach ($plants as $plant)
+                    @foreach ($userPlants as $plant)
                     <label class="flex items-center gap-2">
                         <input type="checkbox"
                             name="plant_uuid[]"
@@ -159,7 +159,6 @@
                     </label>
                     @endforeach
                 </div>
-
                 {{-- Select ALL --}}
                 <div class="mt-2">
                     <label class="flex items-center gap-2 text-blue-600 cursor-pointer">
@@ -222,7 +221,7 @@
                 <label class="block text-sm font-medium">Akses Cabang</label>
 
                 <div class="grid grid-cols-2 gap-2">
-                    @foreach ($plants as $plant)
+                    @foreach ($userPlants as $plant)
                     <label>
                         <input type="checkbox"
                             class="edit_plant rounded"

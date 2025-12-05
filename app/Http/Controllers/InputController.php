@@ -9,6 +9,7 @@ use App\Imports\DeliveryImport;
 use App\Imports\WarehouseImport;
 use App\Imports\WarehouseTemperatureImport;
 use App\Models\Delivery;
+use App\Models\DeliveryTemperature;
 use App\Models\Expedition;
 use App\Models\Warehouse;
 use App\Models\WarehouseTemperature;
@@ -31,15 +32,17 @@ class InputController extends Controller
     {
         $request->validate([
             'warehouse_uuid' => 'required',
-            'temperature' => 'required|numeric',
-            'time' => 'required|date',
+            'temperature.*' => 'required|numeric',
+            'time.*' => 'required|date',
         ]);
 
-        WarehouseTemperature::create([
-            'warehouse_uuid' => $request->warehouse_uuid,
-            'temperature' => $request->temperature,
-            'time' => $request->time,
-        ]);
+        foreach ($request->temperature as $i => $temp) {
+            WarehouseTemperature::create([
+                'warehouse_uuid' => $request->warehouse_uuid,
+                'temperature' => $temp,
+                'time' => $request->time[$i],
+            ]);
+        }
 
         return back()->with('success', 'Data suhu berhasil disimpan!');
     }
@@ -52,21 +55,30 @@ class InputController extends Controller
             'destination' => 'required',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after_or_equal:start_time',
-            'duration' => 'required|numeric|min:0',
-            'temperature' => 'required|numeric|between:-50,50',
-            'time' => 'required|date',
+
+            // Dynamic fields
+            'temperature.*' => 'required|numeric|between:-50,50',
+            'time.*' => 'required|date',
         ]);
-        Delivery::create([
+
+        // 1️⃣ Save main delivery data (1 row only)
+        $delivery = Delivery::create([
             'expedition_uuid' => $request->expedition_uuid,
             'license_plate' => $request->license_plate,
             'destination' => $request->destination,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
-            'duration' => $request->duration,
-            'temperature' => number_format($request->temperature, 1, '.', ''),
-            'time' => $request->time,
             'plant_uuid' => Auth::user()->plant_uuid,
         ]);
+
+        // 2️⃣ Save temperature logs (multiple rows)
+        foreach ($request->temperature as $i => $temp) {
+            DeliveryTemperature::create([
+                'delivery_uuid' => $delivery->uuid,
+                'temperature' => number_format($temp, 1, '.', ''),
+                'time' => $request->time[$i],
+            ]);
+        }
 
         return back()->with('success', 'Data pengiriman berhasil disimpan!');
     }
@@ -85,14 +97,53 @@ class InputController extends Controller
     // IMPORT
     public function importWarehouse(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'excel_file' => 'required|mimes:xlsx,xls',
+            'excel_file' => 'required|file|max:20480',
+            'warehouse_uuid' => 'required|string|exists:warehouses,uuid'
         ]);
 
+        $file = $request->file('excel_file');
+
+        // Ekstensi yang diizinkan
+        $allowed = ['xls', 'xlsx', 'xlsm', 'ods', 'csv'];
+
+        if (! in_array(strtolower($file->getClientOriginalExtension()), $allowed)) {
+            return back()->with('error', 'Format file tidak didukung.');
+        }
+
+        /**
+         * THERMOLOGGER FIX:
+         * File berekstensi .xls tetapi format sebenarnya .xlsx (zip file)
+         * Jika 4 byte pertama = PK\x03\x04 maka file itu sebenarnya XLSX
+         */
+        $firstBytes = file_get_contents($file->getRealPath(), false, null, 0, 4);
+
+        if ($firstBytes === "PK\x03\x04") {
+
+            // Buat file sementara dengan ekstensi .xlsx agar bisa dibaca Laravel-Excel
+            $tmpPath = $file->getRealPath();
+            $convertedPath = $tmpPath . '.xlsx';
+
+            copy($tmpPath, $convertedPath);
+
+            $pathToImport = $convertedPath;
+        } else {
+            // Jika file XLS asli
+            $pathToImport = $file->getRealPath();
+        }
+
         try {
-            Excel::import(new WarehouseTemperatureImport, $request->file('excel_file'));
+
+            // import dengan warehouse_uuid
+            Excel::import(
+                new WarehouseTemperatureImport($request->warehouse_uuid),
+                $pathToImport
+            );
+
             return back()->with('success', 'Warehouse temperature imported successfully.');
         } catch (\Exception $e) {
+
             return back()->with('error', 'Import failed: ' . $e->getMessage());
         }
     }
@@ -100,7 +151,7 @@ class InputController extends Controller
     public function importDelivery(Request $request)
     {
         $request->validate([
-            'excel_file' => 'required|mimes:xlsx,xls',
+            'excel_file' => 'required|file|mimetypes:application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
 
         try {

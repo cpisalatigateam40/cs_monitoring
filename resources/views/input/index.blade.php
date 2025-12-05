@@ -43,13 +43,27 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium mb-1">Suhu (°C)</label>
-                <input type="number" name="temperature" class="w-full border rounded-md p-2" step="0.1" required>
-            </div>
+                <label class="block text-sm font-medium mb-1">Data Suhu & Waktu Pencatatan</label>
 
-            <div>
-                <label class="block text-sm font-medium mb-1">Waktu Pencatatan</label>
-                <input type="datetime-local" name="time" class="w-full border rounded-md p-2" required>
+                <div id="dynamicFields" class="space-y-3">
+                    <div class="flex gap-3 items-center single-row">
+                        <input type="number" name="temperature[]" step="0.1"
+                            class="w-full border rounded-md p-2" placeholder="Suhu (°C)" required>
+
+                        <input type="datetime-local" name="time[]"
+                            class="w-full border rounded-md p-2" required>
+
+                        <button type="button"
+                            class="removeRow bg-red-500 text-white px-3 py-2 rounded-md hidden">
+                            ✖
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" onclick="addRow()"
+                    class="mt-3 bg-blue-500 text-white px-4 py-2 rounded-md">
+                    + Tambah Baris
+                </button>
             </div>
 
             <button class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold">
@@ -104,22 +118,29 @@
                 <input type="datetime-local" name="end_time" class="w-full border rounded-md p-2" required>
             </div>
 
-            {{-- Duration --}}
-            <div>
-                <label class="block text-sm font-medium mb-1">Durasi Pre-cooling (menit)</label>
-                <input type="number" name="duration" class="w-full border rounded-md p-2" min="0" required>
-            </div>
-
             {{-- Temperature (supports negative) --}}
             <div>
-                <label class="block text-sm font-medium mb-1">Suhu Kendaraan (°C)</label>
-                <input type="number" name="temperature" step="0.1" min="-50" class="w-full border rounded-md p-2" required>
-            </div>
+                <label class="block text-sm font-medium mb-1">Data Suhu Kendaraan</label>
 
-            {{-- Temperature log time --}}
-            <div>
-                <label class="block text-sm font-medium mb-1">Waktu Pencatatan Suhu</label>
-                <input type="datetime-local" name="time" class="w-full border rounded-md p-2" required>
+                <div id="dynamicTemperature" class="space-y-3">
+                    <div class="flex gap-3 items-center temp-row">
+                        <input type="number" name="temperature[]" step="0.1" min="-50"
+                            class="w-full border rounded-md p-2" placeholder="Suhu (°C)" required>
+
+                        <input type="datetime-local" name="time[]"
+                            class="w-full border rounded-md p-2" required>
+
+                        <button type="button"
+                            class="removeRow bg-red-500 text-white px-3 py-2 rounded-md hidden">
+                            ✖
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" onclick="addTempRow()"
+                    class="mt-3 bg-blue-500 text-white px-4 py-2 rounded-md">
+                    + Tambah Baris Suhu
+                </button>
             </div>
 
             <button class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold">
@@ -141,6 +162,62 @@
     function closeModal(id) {
         document.getElementById(id).classList.add('hidden');
     }
+
+    function addRow() {
+        const container = document.getElementById('dynamicFields');
+        const firstRow = container.querySelector('.single-row');
+
+        const newRow = firstRow.cloneNode(true);
+
+        newRow.querySelectorAll('input').forEach(i => i.value = '');
+
+        newRow.querySelector('.removeRow').classList.remove('hidden');
+
+        container.appendChild(newRow);
+
+        updateRemoveButtons();
+    }
+
+    function updateRemoveButtons() {
+        const rows = document.querySelectorAll('#dynamicFields .single-row');
+        rows.forEach((row, i) => {
+            const btn = row.querySelector('.removeRow');
+            if (i === 0) {
+                btn.classList.add('hidden');
+            } else {
+                btn.classList.remove('hidden');
+                btn.onclick = () => row.remove();
+            }
+        });
+    }
+
+    function addTempRow() {
+        const container = document.getElementById('dynamicTemperature');
+        const firstRow = container.querySelector('.temp-row');
+
+        const newRow = firstRow.cloneNode(true);
+
+        newRow.querySelectorAll('input').forEach(i => i.value = '');
+
+        newRow.querySelector('.removeRow').classList.remove('hidden');
+
+        container.appendChild(newRow);
+
+        updateTempButtons();
+    }
+
+    function updateTempButtons() {
+        const rows = document.querySelectorAll('#dynamicTemperature .temp-row');
+        rows.forEach((row, i) => {
+            const btn = row.querySelector('.removeRow');
+            if (i === 0) {
+                btn.classList.add('hidden');
+            } else {
+                btn.classList.remove('hidden');
+                btn.onclick = () => row.remove();
+            }
+        });
+    }
 </script>
 
 {{-- =============== WAREHOUSE MODAL =============== --}}
@@ -152,6 +229,14 @@
 
         <form action="{{ route('import.warehouse') }}" method="POST" enctype="multipart/form-data">
             @csrf
+
+            <label class="block mb-2 font-semibold">Nama Gudang: </label>
+            <select class="w-full border rounded-md p-2" name="warehouse_uuid" required>
+                <option value="">Pilih Gudang</option>
+                @foreach ($warehouses as $w)
+                <option value="{{ $w->uuid }}">{{ $w->warehouse }}</option>
+                @endforeach
+            </select>
 
             <label class="block mb-2 font-semibold">Upload File:</label>
             <input type="file" name="excel_file"

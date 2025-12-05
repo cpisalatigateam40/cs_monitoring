@@ -20,15 +20,16 @@ class Delivery extends Model
         'destination',
         'start_time',
         'end_time',
-        'duration',
-        'temperature',
-        'time',
-        'plant_uuid'
     ];
 
 
     public function expedition()
     {
         return $this->belongsTo(Expedition::class, 'expedition_uuid', 'uuid');
+    }
+
+    public function temperatures()
+    {
+        return $this->hasMany(DeliveryTemperature::class, 'delivery_uuid', 'uuid');
     }
 }

@@ -17,10 +17,10 @@ class EmployeeController extends Controller
     public function index()
     {
         $employees = User::with(['plants', 'department'])->get();
-        $plants = Plant::all();
+        $userPlants = Plant::all();
         $departments = Department::all();
         $roles = Role::all();
-        return view('master.employee.index', compact('employees', 'plants', 'departments', 'roles'));
+        return view('master.employee.index', compact('employees', 'userPlants', 'departments', 'roles'));
     }
 
     public function store(Request $request)
@@ -102,6 +102,10 @@ class EmployeeController extends Controller
     public function destroy($uuid)
     {
         $department = User::where('uuid', $uuid)->firstOrFail();
+        $users = UserPlant::where('user_uuid', $uuid)->get();
+        foreach ($users as $user) {
+            $user->delete();
+        }
         $department->delete(); // soft delete
 
         return redirect()->back()->with('success', 'Departemen berhasil dihapus.');

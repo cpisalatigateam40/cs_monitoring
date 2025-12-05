@@ -14,6 +14,7 @@ use App\Models\Warehouse;
 use App\Models\WarehouseTemperature;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Auth;
 
 class InputController extends Controller
 {
@@ -64,6 +65,7 @@ class InputController extends Controller
             'duration' => $request->duration,
             'temperature' => number_format($request->temperature, 1, '.', ''),
             'time' => $request->time,
+            'plant_uuid' => Auth::user()->plant_uuid,
         ]);
 
         return back()->with('success', 'Data pengiriman berhasil disimpan!');

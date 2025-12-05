@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Traits\FilterByPlant;
+use App\Traits\FilterByPlant;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

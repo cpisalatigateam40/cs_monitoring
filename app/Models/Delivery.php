@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Traits\FilterByPlant;
+use App\Traits\FilterByPlant;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,7 +23,9 @@ class Delivery extends Model
         'duration',
         'temperature',
         'time',
+        'plant_uuid'
     ];
+
 
     public function expedition()
     {

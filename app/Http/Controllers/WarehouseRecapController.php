@@ -31,6 +31,13 @@ class WarehouseRecapController extends Controller
 
         $records = $query->get();
 
-        return view('warehouse.index', compact('warehouses', 'records'));
+        // === Data untuk Chart ===
+        $chartLabels = $records->pluck('time')->map(function ($t) {
+            return \Carbon\Carbon::parse($t)->format('d-m H:i');
+        });
+
+        $chartData = $records->pluck('temperature');
+
+        return view('warehouse.index', compact('warehouses', 'records', 'chartLabels', 'chartData'));
     }
 }

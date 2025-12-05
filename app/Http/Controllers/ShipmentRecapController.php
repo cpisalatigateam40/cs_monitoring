@@ -31,6 +31,13 @@ class ShipmentRecapController extends Controller
 
         $records = $query->get();
 
-        return view('shipment.index', compact('records', 'expeditions'));
+        // === Chart data ===
+        $chartLabels = $records->pluck('time')->map(fn($t) =>
+            \Carbon\Carbon::parse($t)->format('d-m H:i')
+        );
+
+        $chartData = $records->pluck('temperature');
+
+        return view('shipment.index', compact('records', 'expeditions', 'chartLabels', 'chartData'));
     }
 }

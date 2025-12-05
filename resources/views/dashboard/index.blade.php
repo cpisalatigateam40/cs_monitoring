@@ -8,49 +8,11 @@
         <h2 class="text-2xl font-semibold text-gray-900">
             Selamat Datang, {{ auth()->user()->name ?? 'User' }}
         </h2>
-        <p class="text-gray-500 text-sm mt-1">
+        <!-- <p class="text-gray-500 text-sm mt-1">
             Role: {{ auth()->user()->role_name ?? '-' }} |
             Cabang: {{ session('selected_branch') ? 'Cabang '.session('selected_branch') : '-' }}
-        </p>
+        </p> -->
     </div>
-
-    {{-- Dummy Data --}}
-    @php
-    $warehouseAnalytics = [
-    [
-    'name' => 'Gudang Beku A',
-    'totalReadings' => 124,
-    'avgTemp' => -17.2,
-    'totalAbove15' => 2,
-    'mostFrequentTime' => '14:00 - 15:00'
-    ],
-    [
-    'name' => 'Gudang Beku B',
-    'totalReadings' => 98,
-    'avgTemp' => -19.1,
-    'totalAbove15' => 0,
-    'mostFrequentTime' => '-'
-    ],
-    ];
-
-    $shipmentAnalytics = [
-    [
-    'name' => 'J&T - B 1234 XY',
-    'totalReadings' => 87,
-    'avgTemp' => -14.8,
-    'totalAbove15' => 3,
-    'mostFrequentTime' => '11:00 - 12:00'
-    ],
-    [
-    'name' => 'JNE - B 9987 YY',
-    'totalReadings' => 69,
-    'avgTemp' => -18.5,
-    'totalAbove15' => 0,
-    'mostFrequentTime' => '-'
-    ],
-    ];
-    @endphp
-
 
     {{-- Rekap Gudang --}}
     <div class="bg-white rounded-xl shadow-md p-6 mb-6">

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class Plant extends Model
 {
-    use HasFactory, SoftDeletes, HasUuid, FilterByPlant;
+    use HasFactory, SoftDeletes, HasUuid;
 
     protected $table = "plants";
     protected $primaryKey = "id";

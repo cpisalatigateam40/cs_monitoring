@@ -7,15 +7,20 @@
                 Pemantauan Suhu Gudang Berpendingin
             </h1>
 
-            <select
-                id="plantSelect"
-                class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
-                @foreach($plants as $plant)
-                <option value="{{ $plant->id }}" {{ session('selected_plant') == $plant->id ? 'selected' : '' }}>
-                    Cabang {{ $plant->name }}
+            @php
+            $plantsList = is_callable($plants) ? $plants() : $plants;
+
+            // default selection
+            $selectedPlant = session('selected_plant', 'all');
+            @endphp
+
+            <select id="plantSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                @foreach($plantsList as $plant)
+                <option value="{{ $plant->uuid }}" {{ $selectedPlant === $plant->uuid ? 'selected' : '' }}>
+                    Cabang {{ $plant->plant }}
                 </option>
                 @endforeach
-                <option value="all" {{ session('selected_plant') == 'all' ? 'selected' : '' }}>Semua Cabang</option>
+                <option value="all" {{ $selectedPlant === 'all' ? 'selected' : '' }}>Semua Cabang</option>
             </select>
         </div>
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Plant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -62,6 +63,15 @@ class User extends Authenticatable
 
     public function plants()
     {
+        // returns UserPlant pivot records
         return $this->hasMany(UserPlant::class, 'user_uuid', 'uuid');
+    }
+
+    /**
+     * Returns actual Plant models the user has access to.
+     */
+    public function accessiblePlants()
+    {
+        return Plant::whereIn('uuid', $this->plants()->pluck('plant_uuid'))->get();
     }
 }

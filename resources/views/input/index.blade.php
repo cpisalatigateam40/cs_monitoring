@@ -234,7 +234,7 @@
             <select class="w-full border rounded-md p-2" name="warehouse_uuid" required>
                 <option value="">Pilih Gudang</option>
                 @foreach ($warehouses as $w)
-                <option value="{{ $w->uuid }}">{{ $w->warehouse }}</option>
+                <option value="{{ $w->uuid }}">{{ $w->warehouse }} ({{ $w->plant->plant }})</option>
                 @endforeach
             </select>
 

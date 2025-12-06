@@ -19,8 +19,14 @@ class DeliveryTemperature extends Model
     ];
 
 
-    public function temperature()
+    // public function temperature()
+    // {
+    //     return $this->belongsTo(Delivery::class, 'delivery_uuid', 'uuid');
+    // }
+
+    public function delivery()
     {
         return $this->belongsTo(Delivery::class, 'delivery_uuid', 'uuid');
     }
+
 }

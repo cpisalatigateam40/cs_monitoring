@@ -7,6 +7,7 @@ use App\Models\Warehouse;
 use App\Models\WarehouseTemperature;
 use App\Models\Expedition;
 use App\Models\Delivery;
+use App\Models\DeliveryTemperature;
 
 class DashboardController extends Controller
 {
@@ -55,53 +56,55 @@ class DashboardController extends Controller
             ];
         }
 
-        // === REKAP PENGIRIMAN / EKSPEDISI ===
+        // === REKAP PENGIRIMAN (JOIN VERSION) ===
+        $query = DeliveryTemperature::select(
+                'delivery_temperatures.*',
+                'deliveries.license_plate',
+                'expeditions.expedition as expedition_name'
+            )
+            ->leftJoin('deliveries', 'deliveries.uuid', '=', 'delivery_temperatures.delivery_uuid')
+            ->leftJoin('expeditions', 'expeditions.uuid', '=', 'deliveries.expedition_uuid')
+            ->where('delivery_temperatures.time', '>=', $sevenDaysAgo) // pakai field TIME
+            ->orderBy('delivery_temperatures.time', 'asc')
+            ->get();
 
-        $expeditions = Expedition::with(['deliveries' => function ($q) use ($sevenDaysAgo) {
-            $q->where('created_at', '>=', $sevenDaysAgo)
-            ->orderBy('created_at', 'asc');
-        }])->get();
-
+        // Group berdasarkan ekspedisi+kendaraan
+        $grouped = $query->groupBy(function ($row) {
+            return ($row->expedition_name ?? '-') . ' - ' . ($row->license_plate ?? '-');
+        });
 
         $shipmentAnalytics = [];
 
-        foreach ($expeditions as $expedition) {
-
-            $deliveries = $expedition->deliveries;
+        foreach ($grouped as $name => $temps) {
 
             // Total pembacaan
-            $totalReadings = $deliveries->count();
+            $totalReadings = $temps->count();
 
             // Rata-rata suhu
-            $avgTemp = $deliveries->avg('temperature');
-            $avgTemp = $avgTemp !== null ? number_format($avgTemp, 1) : '-';
+            $avgTemp = round($temps->avg('temperature'), 1);
 
-            // Kejadian suhu > -15°C
-            $above15 = $deliveries->filter(fn($d) => $d->temperature > -15);
+            // Kejadian suhu > -15
+            $above15 = $temps->where('temperature', '>', -15);
             $totalAbove15 = $above15->count();
 
-            // Jam tersering suhu > -15°C
-            $mostFrequentTime = '-';
-            if ($totalAbove15 > 0) {
-                $mostFrequentTime = $above15
-                    ->groupBy(fn($t) => \Carbon\Carbon::parse($t->time)->format('H:00'))
-                    ->sortByDesc(fn($g) => $g->count())
-                    ->keys()
-                    ->first();
-            }
+            // Waktu tersering (per jam)
+            $mostFrequentTime = $above15
+                ->groupBy(function ($t) {
+                    return \Carbon\Carbon::parse($t->time)->format('H:00');
+                })
+                ->sortByDesc(fn($g) => count($g))
+                ->keys()
+                ->first() ?? '-';
 
-            // PERBAIKAN DI SINI --- gunakan `$expedition->expedition`
-            // serta hindari error ketika deliveries kosong
             $shipmentAnalytics[] = [
-                'name' => ($expedition->expedition ?? '-') . 
-                        ' - ' . 
-                        ($deliveries->first()->license_plate ?? '-'),
-                'totalReadings' => $totalReadings,
-                'avgTemp' => $avgTemp,
-                'totalAbove15' => $totalAbove15,
+                'name'             => $name,
+                'totalReadings'    => $totalReadings,
+                'avgTemp'          => $avgTemp,
+                'totalAbove15'     => $totalAbove15,
                 'mostFrequentTime' => $mostFrequentTime,
             ];
         }
+
 
 
         return view('dashboard.index', compact('warehouseAnalytics', 'shipmentAnalytics'));

@@ -139,9 +139,10 @@ foreach ($groups as $label => $condition) {
 
                         <tr class="{{ $row['bg'] }}">
                             <td class="p-3 text-sm {{ $row['text'] }}">{{ $r->time }}</td>
-                            <td class="p-3 text-sm {{ $row['text'] }}">
-                                {{ $r->expedition->expedition ?? '-' }} — {{ $r->license_plate }}
-                            </td>
+                            <td>{{ $r->expedition_name ?? '-' }} — {{ $r->license_plate ?? '-' }}</td>
+
+
+
                             <td class="p-3 text-sm font-bold {{ $row['text'] }}">
                                 {{ number_format($temp, 1) }}°C
                             </td>
@@ -250,9 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
         tbody.innerHTML += `
             <tr class="${bg}">
                 <td class="p-3 font-medium ${text}">${r.time}</td>
-                <td class="p-3 font-medium ${text}">
-                    ${r.expedition ? r.expedition.expedition : "-"} — ${r.license_plate}
-                </td>
+                <td>{{ $r->expedition_name ?? '-' }} — {{ $r->license_plate ?? '-' }}</td>
                 <td class="p-3 font-bold ${text}">${parseFloat(t).toFixed(1)}°C</td>
                 <td class="p-3 font-semibold ${text}">${label}</td>
             </tr>`;

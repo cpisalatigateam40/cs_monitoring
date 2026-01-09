@@ -62,11 +62,13 @@ $groups = [
     'Suhu > 0°C'         => fn($t) => $t >= 0,
 ];
 
-$total = $records->count();
+$total = $chartRecords->count();
 $stats = [];
 
 foreach ($groups as $label => $condition) {
-    $count = $records->filter(fn($r) => $condition($r->temperature))->count();
+    $count = $chartRecords
+        ->filter(fn($r) => $condition($r->temperature))
+        ->count();
 
     $stats[] = [
         'label' => $label,
@@ -163,6 +165,10 @@ foreach ($groups as $label => $condition) {
                 </tbody>
             </table>
         </div>
+
+        <div class="mt-4 px-4">
+            {{ $records->links() }}
+        </div>
     </div>
 
 </div>
@@ -207,75 +213,75 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-/* Data dari backend */
-    const allRecords = @json($records);
+// /* Data dari backend */
+//     const allRecords = @json($records);
 
-    /* Kelompok suhu */
-    const tempGroups = [
-        r => r.temperature < -18,
-        r => r.temperature >= -18 && r.temperature < -15,
-        r => r.temperature >= -15 && r.temperature < -10,
-        r => r.temperature >= -10 && r.temperature < 0,
-        r => r.temperature >= 0
-    ];
+//     /* Kelompok suhu */
+//     const tempGroups = [
+//         r => r.temperature < -18,
+//         r => r.temperature >= -18 && r.temperature < -15,
+//         r => r.temperature >= -15 && r.temperature < -10,
+//         r => r.temperature >= -10 && r.temperature < 0,
+//         r => r.temperature >= 0
+//     ];
 
-    /* Render tabel berdasarkan data */
-    function renderTable(rows) {
-    const tbody = document.getElementById("shipment-table-body");
-    tbody.innerHTML = "";
+//     /* Render tabel berdasarkan data */
+//     function renderTable(rows) {
+//     const tbody = document.getElementById("shipment-table-body");
+//     tbody.innerHTML = "";
 
-    if (rows.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" class="py-5 text-center text-gray-500">
-                    Tidak ada data
-                </td>
-            </tr>`;
-        return;
-    }
+//     if (rows.length === 0) {
+//         tbody.innerHTML = `
+//             <tr>
+//                 <td colspan="4" class="py-5 text-center text-gray-500">
+//                     Tidak ada data
+//                 </td>
+//             </tr>`;
+//         return;
+//     }
 
-    rows.forEach(r => {
-        let bg, text, label;
-        const t = r.temperature;
+//     rows.forEach(r => {
+//         let bg, text, label;
+//         const t = r.temperature;
 
-        if (t < -18) {
-            bg = 'bg-emerald-100'; text = 'text-emerald-900'; label = 'Aman';
-        }
-        else if (t < -10) {
-            bg = 'bg-orange-100'; text = 'text-orange-900'; label = 'Warning';
-        }
-        else {
-            bg = 'bg-red-100'; text = 'text-red-900'; label = 'Bahaya';
-        }
+//         if (t < -18) {
+//             bg = 'bg-emerald-100'; text = 'text-emerald-900'; label = 'Aman';
+//         }
+//         else if (t < -10) {
+//             bg = 'bg-orange-100'; text = 'text-orange-900'; label = 'Warning';
+//         }
+//         else {
+//             bg = 'bg-red-100'; text = 'text-red-900'; label = 'Bahaya';
+//         }
 
-        tbody.innerHTML += `
-            <tr class="${bg}">
-                <td class="p-3 font-medium ${text}">${r.time}</td>
-                <td>{{ $r->expedition_name ?? '-' }} — {{ $r->license_plate ?? '-' }}</td>
-                <td class="p-3 font-bold ${text}">${parseFloat(t).toFixed(1)}°C</td>
-                <td class="p-3 font-semibold ${text}">${label}</td>
-            </tr>`;
-    });
-}
+//         tbody.innerHTML += `
+//             <tr class="${bg}">
+//                 <td class="p-3 font-medium ${text}">${r.time}</td>
+//                 <td>{{ $r->expedition_name ?? '-' }} — {{ $r->license_plate ?? '-' }}</td>
+//                 <td class="p-3 font-bold ${text}">${parseFloat(t).toFixed(1)}°C</td>
+//                 <td class="p-3 font-semibold ${text}">${label}</td>
+//             </tr>`;
+//     });
+// }
 
 
-    /* Event klik Tab */
-    document.querySelectorAll(".temp-tab").forEach((tab, idx) => {
-        tab.addEventListener("click", () => {
+//     /* Event klik Tab */
+//     document.querySelectorAll(".temp-tab").forEach((tab, idx) => {
+//         tab.addEventListener("click", () => {
 
-            const filtered = allRecords.filter(r => tempGroups[idx](r));
-            renderTable(filtered);
+//             const filtered = allRecords.filter(r => tempGroups[idx](r));
+//             renderTable(filtered);
 
-            /* Reset semua tab */
-            document.querySelectorAll(".temp-tab")
-                .forEach(e => e.classList.remove("outline", "outline-2", "outline-blue-700"));
+//             /* Reset semua tab */
+//             document.querySelectorAll(".temp-tab")
+//                 .forEach(e => e.classList.remove("outline", "outline-2", "outline-blue-700"));
 
-            /* Aktifkan outline tab terpilih */
-            tab.classList.add("outline", "outline-2", "outline-blue-700");
-        });
-    });
+//             /* Aktifkan outline tab terpilih */
+//             tab.classList.add("outline", "outline-2", "outline-blue-700");
+//         });
+//     });
 
-    /* Default: tampilkan semua data pertama kali */
-    renderTable(allRecords);
+//     /* Default: tampilkan semua data pertama kali */
+//     renderTable(allRecords);
 </script>
 @endsection

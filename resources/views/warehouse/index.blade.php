@@ -79,29 +79,32 @@ $fontSize = 14; // default sementara
                 'Suhu > 0°C'        => fn($t) => $t >= 0,
             ];
 
-            $total = $records->count();
+            $total = $allRecords->count();
             $stats = [];
 
             foreach ($groups as $label => $condition) {
-                $count = $records->filter(fn($r) => $condition($r->temperature))->count();
+                $count = $allRecords
+                    ->filter(fn($r) => $condition($r->temperature))
+                    ->count();
 
                 $stats[] = [
                     'label' => $label,
                     'count' => $count,
                     'percent' => $total > 0 ? round(($count / $total) * 100) : 0,
                     'bg' => match($label) {
-                        'Suhu < -18°C'      => '#d1fae5',
-                        '-18°C s/d -15°C'   => '#fed7aa',
-                        default             => '#fecaca',
+                        'Suhu < -18°C'    => '#d1fae5',
+                        '-18°C s/d -15°C' => '#fed7aa',
+                        default           => '#fecaca',
                     },
                     'text' => match($label) {
-                        'Suhu < -18°C'      => '#065f46',
-                        '-18°C s/d -15°C'   => '#92400e',
-                        default             => '#991b1b',
+                        'Suhu < -18°C'    => '#065f46',
+                        '-18°C s/d -15°C' => '#92400e',
+                        default           => '#991b1b',
                     }
                 ];
             }
             @endphp
+
 
             @foreach($stats as $i => $s)
                 <div class="temp-tab"
@@ -189,6 +192,10 @@ $fontSize = 14; // default sementara
 
                 </table>
             </div>
+
+            <div style="padding: 12px;">
+                {{ $records->links() }}
+            </div>
         </div>
     </div>
 </div>
@@ -228,70 +235,70 @@ $fontSize = 14; // default sementara
         });
     });
 
-    /* Data untuk filter */
-    const allRecords = @json($records);
+    // /* Data untuk filter */
+    // const allRecords = @json($records);
 
-    /* Range suhu sesuai PHP */
-    const tempGroups = [
-        r => r.temperature < -18,
-        r => r.temperature >= -18 && r.temperature < -15,
-        r => r.temperature >= -15 && r.temperature < -10,
-        r => r.temperature >= -10 && r.temperature < 0,
-        r => r.temperature >= 0
-    ];
+    // /* Range suhu sesuai PHP */
+    // const tempGroups = [
+    //     r => r.temperature < -18,
+    //     r => r.temperature >= -18 && r.temperature < -15,
+    //     r => r.temperature >= -15 && r.temperature < -10,
+    //     r => r.temperature >= -10 && r.temperature < 0,
+    //     r => r.temperature >= 0
+    // ];
 
-    /* Render tabel dinamis */
-    function renderTable(rows) {
-        const tbody = document.getElementById("warehouse-table-body");
-        tbody.innerHTML = "";
+    // /* Render tabel dinamis */
+    // function renderTable(rows) {
+    //     const tbody = document.getElementById("warehouse-table-body");
+    //     tbody.innerHTML = "";
 
-        if (rows.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="padding: 20px; text-align: center; color: #6b7280;">
-                        Tidak ada data
-                    </td>
-                </tr>`;
-            return;
-        }
+    //     if (rows.length === 0) {
+    //         tbody.innerHTML = `
+    //             <tr>
+    //                 <td colspan="4" style="padding: 20px; text-align: center; color: #6b7280;">
+    //                     Tidak ada data
+    //                 </td>
+    //             </tr>`;
+    //         return;
+    //     }
 
-        rows.forEach(r => {
-            let bg, text, label;
-            const t = r.temperature;
+    //     rows.forEach(r => {
+    //         let bg, text, label;
+    //         const t = r.temperature;
 
-            if (t < -18)      { bg='#d1fae5'; text='#065f46'; label='Aman'; }
-            else if (t < -10) { bg='#fed7aa'; text='#92400e'; label='Warning'; }
-            else              { bg='#fecaca'; text='#991b1b'; label='Bahaya'; }
+    //         if (t < -18)      { bg='#d1fae5'; text='#065f46'; label='Aman'; }
+    //         else if (t < -10) { bg='#fed7aa'; text='#92400e'; label='Warning'; }
+    //         else              { bg='#fecaca'; text='#991b1b'; label='Bahaya'; }
 
-            tbody.innerHTML += `
-                <tr style="background:${bg}">
-                    <td style="padding:10px; font-weight:500; color:${text};">
-                        ${r.time}
-                    </td>
-                    <td style="padding:10px; font-weight:500; color:${text};">
-                        ${r.warehouse.warehouse}
-                    </td>
-                    <td style="padding:10px; font-weight:700; color:${text};">
-                        ${parseFloat(t).toFixed(1)}°C
-                    </td>
-                    <td style="padding:10px; font-weight:600; color:${text};">
-                        ${label}
-                    </td>
-                </tr>`;
-        });
-    }
+    //         tbody.innerHTML += `
+    //             <tr style="background:${bg}">
+    //                 <td style="padding:10px; font-weight:500; color:${text};">
+    //                     ${r.time}
+    //                 </td>
+    //                 <td style="padding:10px; font-weight:500; color:${text};">
+    //                     ${r.warehouse.warehouse}
+    //                 </td>
+    //                 <td style="padding:10px; font-weight:700; color:${text};">
+    //                     ${parseFloat(t).toFixed(1)}°C
+    //                 </td>
+    //                 <td style="padding:10px; font-weight:600; color:${text};">
+    //                     ${label}
+    //                 </td>
+    //             </tr>`;
+    //     });
+    // }
 
-    /* Klik Tab Statistik */
-    document.querySelectorAll(".temp-tab").forEach((tab, idx) => {
-        tab.addEventListener("click", () => {
+    // /* Klik Tab Statistik */
+    // document.querySelectorAll(".temp-tab").forEach((tab, idx) => {
+    //     tab.addEventListener("click", () => {
 
-            const filtered = allRecords.filter(r => tempGroups[idx](r));
+    //         const filtered = allRecords.filter(r => tempGroups[idx](r));
 
-            renderTable(filtered);
+    //         renderTable(filtered);
 
-            document.querySelectorAll(".temp-tab").forEach(e => e.style.outline = "none");
-            tab.style.outline = "3px solid #1e40af";
-        });
-    });
+    //         document.querySelectorAll(".temp-tab").forEach(e => e.style.outline = "none");
+    //         tab.style.outline = "3px solid #1e40af";
+    //     });
+    // });
 </script>
 @endsection

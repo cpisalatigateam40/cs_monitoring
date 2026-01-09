@@ -70,7 +70,7 @@ class WarehouseRecapController extends Controller
             ->get();
 
         $chartLabels = $allRecords->pluck('time')
-            ->map(fn ($t) => \Carbon\Carbon::parse($t)->format('d-m H:i'));
+            ->map(fn($t) => \Carbon\Carbon::parse($t)->format('d-m H:i'));
 
         $chartData = $allRecords->pluck('temperature');
 
@@ -79,7 +79,7 @@ class WarehouseRecapController extends Controller
         =============================== */
         $records = $baseQuery
             ->orderBy('time', 'desc')
-            ->paginate(1)
+            ->paginate(20)
             ->withQueryString();
 
         return view('warehouse.index', compact(
@@ -90,5 +90,4 @@ class WarehouseRecapController extends Controller
             'chartData'
         ));
     }
-
 }

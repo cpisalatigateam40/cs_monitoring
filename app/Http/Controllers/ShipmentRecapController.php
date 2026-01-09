@@ -63,7 +63,12 @@ class ShipmentRecapController extends Controller
     {
         $expeditions = Expedition::all();
 
-        $baseQuery = DeliveryTemperature::select(
+        /*
+        =================================================
+        1️⃣ QUERY GLOBAL (UNTUK STAT & CHART)
+        =================================================
+        */
+        $globalQuery = DeliveryTemperature::select(
             'delivery_temperatures.*',
             'deliveries.license_plate',
             'expeditions.expedition as expedition_name'
@@ -73,24 +78,24 @@ class ShipmentRecapController extends Controller
 
         // Filter ekspedisi
         if ($request->filled('expedition') && $request->expedition !== 'all') {
-            $baseQuery->where('deliveries.expedition_uuid', $request->expedition);
+            $globalQuery->where('deliveries.expedition_uuid', $request->expedition);
         }
 
         // Filter tanggal
         if ($request->filled('start_date')) {
-            $baseQuery->whereDate('time', '>=', $request->start_date);
+            $globalQuery->whereDate('time', '>=', $request->start_date);
         }
 
         if ($request->filled('end_date')) {
-            $baseQuery->whereDate('time', '<=', $request->end_date);
+            $globalQuery->whereDate('time', '<=', $request->end_date);
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | DATA CHART (TANPA PAGINATE)
-        |--------------------------------------------------------------------------
+        ===============================
+        DATA GLOBAL (STAT + CHART)
+        ===============================
         */
-        $chartRecords = (clone $baseQuery)
+        $chartRecords = (clone $globalQuery)
             ->orderBy('time', 'asc')
             ->get();
 
@@ -100,14 +105,27 @@ class ShipmentRecapController extends Controller
         $chartData = $chartRecords->pluck('temperature');
 
         /*
-        |--------------------------------------------------------------------------
-        | DATA TABLE (PAGINATE)
-        |--------------------------------------------------------------------------
+        =================================================
+        2️⃣ QUERY TABLE (BOLEH FILTER SUHU)
+        =================================================
         */
-        $records = $baseQuery
+        $tableQuery = clone $globalQuery;
+
+        if ($request->filled('temp_range')) {
+            match ($request->temp_range) {
+                'lt_-18'  => $tableQuery->where('temperature', '<', -18),
+                '-18_-15' => $tableQuery->whereBetween('temperature', [-18, -15]),
+                '-15_-10' => $tableQuery->whereBetween('temperature', [-15, -10]),
+                '-10_0'   => $tableQuery->whereBetween('temperature', [-10, 0]),
+                'gte_0'   => $tableQuery->where('temperature', '>=', 0),
+                default   => null,
+            };
+        }
+
+        $records = $tableQuery
             ->orderBy('time', 'desc')
             ->paginate(20)
-            ->withQueryString(); // ⬅ penting biar filter tidak hilang
+            ->withQueryString();
 
         return view('shipment.index', compact(
             'records',
@@ -117,5 +135,6 @@ class ShipmentRecapController extends Controller
             'chartRecords'
         ));
     }
+
 
 }

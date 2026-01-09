@@ -72,73 +72,94 @@ $fontSize = 14; // default sementara
 
             @php
             $groups = [
-                'Suhu < -18°C'      => fn($t) => $t < -18,
-                '-18°C s/d -15°C'   => fn($t) => $t >= -18 && $t < -15,
-                '-15°C s/d -10°C'   => fn($t) => $t >= -15 && $t < -10,
-                '-10°C s/d 0°C'     => fn($t) => $t >= -10 && $t < 0,
-                'Suhu > 0°C'        => fn($t) => $t >= 0,
+                'lt_-18' => [
+                    'label' => 'Suhu < -18°C',
+                    'cond'  => fn($t) => $t < -18,
+                ],
+                '-18_-15' => [
+                    'label' => '-18°C s/d -15°C',
+                    'cond'  => fn($t) => $t >= -18 && $t < -15,
+                ],
+                '-15_-10' => [
+                    'label' => '-15°C s/d -10°C',
+                    'cond'  => fn($t) => $t >= -15 && $t < -10,
+                ],
+                '-10_0' => [
+                    'label' => '-10°C s/d 0°C',
+                    'cond'  => fn($t) => $t >= -10 && $t < 0,
+                ],
+                'gte_0' => [
+                    'label' => 'Suhu > 0°C',
+                    'cond'  => fn($t) => $t >= 0,
+                ],
             ];
 
             $total = $allRecords->count();
             $stats = [];
 
-            foreach ($groups as $label => $condition) {
-                $count = $allRecords
-                    ->filter(fn($r) => $condition($r->temperature))
-                    ->count();
+            
+            foreach ($groups as $key => $g) {
+                $count = $allRecords->filter(fn($r) => $g['cond']($r->temperature))->count();
 
                 $stats[] = [
-                    'label' => $label,
+                    'key' => $key,
+                    'label' => $g['label'],
                     'count' => $count,
-                    'percent' => $total > 0 ? round(($count / $total) * 100) : 0,
-                    'bg' => match($label) {
-                        'Suhu < -18°C'    => '#d1fae5',
-                        '-18°C s/d -15°C' => '#fed7aa',
-                        default           => '#fecaca',
-                    },
-                    'text' => match($label) {
-                        'Suhu < -18°C'    => '#065f46',
-                        '-18°C s/d -15°C' => '#92400e',
-                        default           => '#991b1b',
-                    }
+                    'percent' => $total ? round(($count/$total)*100) : 0,
+                    'bg' => $key === 'lt_-18' ? '#d1fae5' : ($key === '-18_-15' ? '#fed7aa' : '#fecaca'),
+                    'text' => $key === 'lt_-18' ? '#065f46' : ($key === '-18_-15' ? '#92400e' : '#991b1b'),
                 ];
             }
             @endphp
 
 
             @foreach($stats as $i => $s)
-                <div class="temp-tab"
-                    data-index="{{ $i }}"
-                    style="background: {{ $s['bg'] }};
-                        padding: {{ $fontSize * 1.5 }}px;
-                        border-radius: 12px;
-                        cursor: pointer;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                    <div style="display: flex; justify-content: space-between;">
-                        <div>
-                            <p style="font-size: {{ $fontSize * 0.875 }}px;
-                                    font-weight: 600;
-                                    margin-bottom: {{ $fontSize * 0.5 }}px;
-                                    color: {{ $s['text'] }};">
-                                {{ $s['label'] }}
-                            </p>
-                            <p style="font-size: {{ $fontSize * 2.5 }}px;
-                                    font-weight: 800;
-                                    line-height: 1;
-                                    color: {{ $s['text'] }};">
-                                {{ $s['count'] }}
-                            </p>
-                        </div>
-                        <div style="text-align: right;">
-                            <p style="font-size: {{ $fontSize * 2 }}px;
-                                    font-weight: 700;
-                                    color: {{ $s['text'] }};">
-                                {{ $s['percent'] }}%
-                            </p>
+                <a href="{{ route('warehouse.recap', array_merge(request()->query(), [
+                    'temp_range' => $s['key']
+                ])) }}"
+                style="text-decoration:none">
+
+                    <div class="temp-tab"
+                        style="background: {{ $s['bg'] }};
+                            padding: {{ $fontSize * 1.5 }}px;
+                            border-radius: 12px;
+                            cursor: pointer;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                            {{ request('temp_range') === $s['key'] ? 'outline:3px solid #1e40af' : '' }}">
+
+                        <div style="display:flex; justify-content:space-between;">
+                            <div>
+                                <p style="font-size: {{ $fontSize * 0.875 }}px;
+                                        font-weight:600;
+                                        color: {{ $s['text'] }};">
+                                    {{ $s['label'] }}
+                                </p>
+                                <p style="font-size: {{ $fontSize * 2.5 }}px;
+                                        font-weight:800;
+                                        color: {{ $s['text'] }};">
+                                    {{ $s['count'] }}
+                                </p>
+                            </div>
+                            <div>
+                                <p style="font-size: {{ $fontSize * 2 }}px;
+                                        font-weight:700;
+                                        color: {{ $s['text'] }};">
+                                    {{ $s['percent'] }}%
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
             @endforeach
+
+            {{-- Reset filter suhu --}}
+            @if(request()->filled('temp_range'))
+                <a href="{{ route('warehouse.recap', request()->except('temp_range','page')) }}"
+                class="block text-center text-sm font-semibold text-gray-600 hover:text-blue-600 mt-2">
+                    Reset Filter Suhu
+                </a>
+            @endif
+
 
         </div>
 

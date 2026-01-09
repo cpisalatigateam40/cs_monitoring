@@ -83,6 +83,16 @@ foreach ($groups as $label => $condition) {
 }
 @endphp
 
+@php
+$tempRanges = [
+    0 => 'lt_-18',
+    1 => '-18_-15',
+    2 => '-15_-10',
+    3 => '-10_0',
+    4 => 'gte_0',
+];
+@endphp
+
 
 <div class="grid md:grid-cols-3 gap-6">
 
@@ -90,19 +100,45 @@ foreach ($groups as $label => $condition) {
     {{--       Stat Cards        --}}
     {{-- ======================== --}}
     <div class="space-y-4">
-        @foreach ($stats as $i => $s)
-            @php
-                $bg = explode(' ', $s['bg'])[0];
-                $text = explode(' ', $s['bg'])[1];
-            @endphp
+    @foreach ($stats as $i => $s)
+        @php
+            $bg   = explode(' ', $s['bg'])[0];
+            $text = explode(' ', $s['bg'])[1];
 
-            <div class="temp-tab p-4 rounded-lg border cursor-pointer {{ $bg }}" data-index="{{ $i }}">
-                <p class="font-semibold text-sm {{ $text }}">{{ $s['label'] }}</p>
-                <h3 class="text-3xl font-extrabold {{ $text }}">{{ $s['count'] }}</h3>
-                <p class="font-bold text-xl {{ $text }}">{{ $s['percent'] }}%</p>
-            </div>
-        @endforeach
-    </div>
+            $isActive = request('temp_range') === ($tempRanges[$i] ?? null);
+        @endphp
+
+        <a href="{{ route('shipment.recap', array_merge(
+                request()->except('page'),
+                ['temp_range' => $tempRanges[$i]]
+            )) }}"
+           class="block p-4 rounded-lg border cursor-pointer transition
+                  {{ $bg }}
+                  {{ $isActive ? 'ring-4 ring-blue-600 scale-[1.02]' : 'hover:scale-[1.01]' }}">
+            
+            <p class="font-semibold text-sm {{ $text }}">
+                {{ $s['label'] }}
+            </p>
+
+            <h3 class="text-3xl font-extrabold {{ $text }}">
+                {{ $s['count'] }}
+            </h3>
+
+            <p class="font-bold text-xl {{ $text }}">
+                {{ $s['percent'] }}%
+            </p>
+        </a>
+    @endforeach
+
+    {{-- Reset filter suhu --}}
+    @if(request()->filled('temp_range'))
+        <a href="{{ route('shipment.recap', request()->except('temp_range','page')) }}"
+           class="block text-center text-sm font-semibold text-gray-600 hover:text-blue-600 mt-2">
+            Reset Filter Suhu
+        </a>
+    @endif
+</div>
+
 
 
 
